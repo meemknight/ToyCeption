@@ -1,0 +1,9 @@
+@phisical "objects/soldier.obj" @position 10, 9, 10 @mass 10
+@phisical "objects/soldier.obj" @position 12, 9, 10 
+@phisical "objects/soldier.obj" @position 14, 9, 10
+@phisical "objects/soldier.obj" @position 10, 9, 12
+@phisical "objects/soldier.obj" @position 10, 9, 14
+@phisical "objects/soldier.obj" @position 14, 9, 14 @mass 10 @unique @id 250
+@phisical "objects/level1.obj" @position 0, 0, 0 @mass 0 @collision "" @id 440
+@phisical "objects/bigWood.obj" @position 48, 7, -10 @rotation 90, 0, 0 @mass 15 @collision "" 
+@phisical "objects/bloc.obj" @position 35, 4, 45 @mass 10 
