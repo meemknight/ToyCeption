@@ -46,6 +46,7 @@ struct generalObjectData
 	float mass = 0;
 	int id = 0;
 	bool unique = 0;
+	bool directionalLight = 0;
 };
 
 std::vector<generalObjectData> loadMapData(const char *f);

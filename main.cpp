@@ -156,9 +156,7 @@ int main()
 	std::cout << glGetString(GL_VERSION);
 
 
-	light.pushElement(Light::roomLight(0.3f));
-	light.getPosition(0).y = 20;
-	light.getStrength(0) = 0.0003f;
+	
 
 	GameObject plan(vertexBuffer(planVertexes, plansize * 4), indexBuffer(planIndices, planIndicessize * 4), vertexAttribute({ 3,3,3 }), &normalProgram, &camera);
 	plan.pushElement(glm::mat4(0));
@@ -261,7 +259,7 @@ int main()
 		}
 
 		float maxSpeed = 35000 * deltatime;
-		float jumpImpulse = 8;
+		float jumpImpulse = 7.5;
 	
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 		{
@@ -391,7 +389,7 @@ int main()
 					for (int j = 0; j < numContacts; j++)
 					{
 						btManifoldPoint& pt = contactManifold->getContactPoint(j);
-						if (pt.getDistance() < 0.01f)
+						if (pt.getDistance() < 0.012f)
 						{
 							btVector3 normal;
 							if (obB == playerObject.getInstance(0)) //Check each object to see if it's the rigid body and determine the correct normal.
@@ -403,7 +401,7 @@ int main()
 								normal = pt.m_normalWorldOnB;
 							}
 
-							if (normal.y() > 0.2f /*put the threshold here */)
+							if (normal.y() > 0.3f /*put the threshold here */)
 							{
 								//The character controller is on the ground
 								canJump2 = true;
@@ -416,7 +414,6 @@ int main()
 
 			if (canJump2 && canJump)
 			{
-				ilog("jump");
 				playerObject.getInstance(0)->setLinearVelocity({ 0,jumpImpulse,0 });
 				playerObject.getInstance(0)->activate(true);
 				canJump = false;
@@ -452,7 +449,7 @@ int main()
 		playerObject.getInstance(0)->getMotionState()->getWorldTransform(playerTransform);
 		//playerObject.getInstance(0)->setWorldTransform(playerTransform);
 		playerPos = { playerTransform.getOrigin().x(), playerTransform.getOrigin().y(), playerTransform.getOrigin().z() };
-
+		//ilog(playerPos.x(), playerPos.y(), playerPos.z());
 
 		camera.playerPosition = { playerPos.x(), playerPos.y(), playerPos.z() };
 		camera.topDownAngle = playerAngle;

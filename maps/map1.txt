@@ -6,4 +6,14 @@
 @phisical "objects/soldier.obj" @position 14, 9, 14 @mass 10 @unique @id 250
 @phisical "objects/level1.obj" @position 0, 0, 0 @mass 0 @collision "" @id 440
 @phisical "objects/bigWood.obj" @position 48, 7, -10 @rotation 90, 0, 0 @mass 15 @collision "" 
-@phisical "objects/bloc.obj" @position 35, 4, 45 @mass 10 
+@phisical "objects/bloc.obj" @position 35, 4, 45 @mass 10
+@phisical "objects/soldier.obj" @position 42, 8, 20 @mass 10
+@phisical "objects/soldier.obj" @position 40, 8, 23 @mass 10
+@phisical "objects/soldier.obj" @position 42, 8, 26 @mass 10
+@phisical "objects/soldier.obj" @position 40, 8, 29 @mass 10
+@phisical "objects/soldier.obj" @position 42, 8, 32 @mass 10
+@phisical "objects/soldier.obj" @position 40, 8, 35 @mass 10
+@light @position 0, 20, 0 @diffuse 1, 1, 1 @specular 1, 1, 1 @ambience 0.3, 0.3, 0.3 @strength 0.0003
+@light @position 56, 0, 35 @diffuse 0.9, 0.3, 0.3 @specular 0.3, 0, 0 @ambience 0.4, 0.1, 0.1 @strength 0.1 
+@light @position 58, 0, 35 @diffuse 0.9, 0.3, 0.3 @specular 0.3, 0, 0 @ambience 0.4, 0.1, 0.1 @strength 0.1 
+@light @position 9.5, 5.0, 58.5 @diffuse 0.3, 0.4, 0.9 @specular 0.1, 0.2, 0.9 @ambience 0.1, 0.1, 0.2 @strength 0.1 

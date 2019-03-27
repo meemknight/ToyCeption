@@ -193,7 +193,7 @@ void GameObjectPool::load(const char * file)
 		}
 			break;
 		default:
-			elog("error in the map file: ", file, " unrecognised object type: ", i.type);
+			wlog("error in the map file: ", file, " unrecognised object type: ", i.type);
 			break;
 		}
 	}

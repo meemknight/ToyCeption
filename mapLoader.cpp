@@ -121,6 +121,21 @@ int parseCommand(char *line, char *& endPos)
 		return unique;
 	}
 	else
+	if (strcmp(line, "@ambience") == 0)
+	{
+		return ambience;
+	}
+	else
+	if (strcmp(line, "@diffuse") == 0)
+	{
+		return diffuse;
+	}
+	else
+	if (strcmp(line, "@specular") == 0)
+	{
+		return specular;
+	}
+	else
 	{
 		//not log here
 		return none;
@@ -187,8 +202,8 @@ std::vector<generalObjectData> loadMapData(const char *f)
 				break;
 			case light:
 				object.type = light;
-				object.name = parseName(current, p);
-				current = p;
+				//object.name = parseName(current, p);
+				//current ++;
 				break;
 			case position:
 				parseFloats(current, p, x, y, z);
