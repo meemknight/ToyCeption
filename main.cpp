@@ -178,6 +178,10 @@ int main()
 
 	//playerObject.getIndtance(0)->setFriction(0.5f);
 	
+	bool canJump = true;
+	bool canJump2 = true;
+	float jumpingCharge = 0;
+
 	window.setTitle((char*)glGetString(GL_RENDERER));
 	while (window.isOpen())
 	{
@@ -256,24 +260,43 @@ int main()
 			//updatemouse = 0;
 		}
 
+		float maxSpeed = 35000 * deltatime;
+		float jumpImpulse = 8;
+	
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
 		{
 			camera.moveFront(deltatime);
+
+			playerObject.getInstance(0)->applyCentralForce({ 0,0,-maxSpeed * cos(playerAngle) });
+			playerObject.getInstance(0)->applyCentralForce({ -maxSpeed * sin(playerAngle), 0, 0 });
+			playerObject.getInstance(0)->activate(1);
 		}
 		
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
 		{
 			camera.moveBack(deltatime);
+
+			playerObject.getInstance(0)->applyCentralForce({ 0,0,maxSpeed * cos(playerAngle) });
+			playerObject.getInstance(0)->applyCentralForce({ maxSpeed * sin(playerAngle), 0, 0 });
+			playerObject.getInstance(0)->activate(1);
 		}
 		
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
 		{
 			camera.moveLeft(deltatime);
+		
+			playerObject.getInstance(0)->applyCentralForce({ -maxSpeed * cos(playerAngle),0,0 });
+			playerObject.getInstance(0)->applyCentralForce({ 0,0, maxSpeed * sin(playerAngle) });
+			playerObject.getInstance(0)->activate(1);
 		}
 		
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
 		{
 			camera.moveRight(deltatime);
+		
+			playerObject.getInstance(0)->applyCentralForce({ maxSpeed * cos(playerAngle),0,0 });
+			playerObject.getInstance(0)->applyCentralForce({ 0,0,maxSpeed * -sin(playerAngle) });
+			playerObject.getInstance(0)->activate(1);
 		}
 		
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
@@ -285,19 +308,6 @@ int main()
 		{
 			camera.moveDown(deltatime);
 		}
-
-		//
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad8))
-		{
-			camera.cameraAngle += glm::radians(25.f) * deltatime;
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Numpad2))
-		{
-			camera.cameraAngle -= glm::radians(25.f) * deltatime;
-		}
-
-		
 
 		if (updatemouse)
 		{
@@ -322,59 +332,105 @@ int main()
 			window.setMouseCursorVisible(1);
 			updatemouse = 0;
 		}
+		
+		jumpingCharge += deltatime;
 
-		 float maxSpeed = 35000 * deltatime;
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Y))
+		if(canJump == false)
 		{
-			playerObject.getIndtance(0)->applyCentralForce({ 0,0,-maxSpeed * cos(playerAngle) });
-			playerObject.getIndtance(0)->applyCentralForce({ -maxSpeed * sin(playerAngle), 0, 0 });
-			playerObject.getIndtance(0)->activate(1);
+			if(jumpingCharge >= 0.2)
+			{
+				canJump = true;
+				jumpingCharge = 0;
+			}
 		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::H))
-		{
-			playerObject.getIndtance(0)->applyCentralForce({ 0,0,maxSpeed * cos(playerAngle) });
-			playerObject.getIndtance(0)->applyCentralForce({ maxSpeed * sin(playerAngle), 0, 0 });
-			playerObject.getIndtance(0)->activate(1);
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::G))
-		{
-			playerObject.getIndtance(0)->applyCentralForce({ -maxSpeed * cos(playerAngle),0,0 });
-			playerObject.getIndtance(0)->applyCentralForce({ 0,0, maxSpeed * sin(playerAngle) });
-			playerObject.getIndtance(0)->activate(1);
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::J))
-		{
-			playerObject.getIndtance(0)->applyCentralForce({ maxSpeed * cos(playerAngle),0,0 });
-			playerObject.getIndtance(0)->applyCentralForce({ 0,0,maxSpeed * -sin(playerAngle) });
-			playerObject.getIndtance(0)->activate(1);
-		}
-
-		if(sf::Keyboard::isKeyPressed(sf::Keyboard::T))
-		{
-			playerAngle += playerRotationSpeed * deltatime;
-		}
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::U))
-		{
-			playerAngle -= playerRotationSpeed * deltatime;
-		}
+		btVector3 playerPos;
+		btTransform playerTransform;
+		playerObject.getInstance(0)->getMotionState()->getWorldTransform(playerTransform);
+		//playerObject.getInstance(0)->setWorldTransform(playerTransform);
+		playerPos = { playerTransform.getOrigin().x(), playerTransform.getOrigin().y(), playerTransform.getOrigin().z() };
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 		{
-			playerObject.getIndtance(0)->applyCentralForce({ 0,maxSpeed*2,0 });
-			playerObject.getIndtance(0)->activate(1);
+			/*
+			btVector3 direction = { 0,-1,0 };
+			btCollisionWorld::ClosestRayResultCallback RayCallback(playerPos + (direction * 1.01), playerPos + (direction * 1.11));
+			//RayCallback.
+
+			// Perform raycast
+			world->rayTest(playerPos + (direction * 1.01), playerPos + (direction * 1.11), RayCallback);
+			if (RayCallback.hasHit() && canJump) 
+			{
+				ilog("jumped");
+				jumpingCharge = 0;
+				canJump = false;
+				//End = RayCallback.m_hitPointWorld;
+				//Normal = RayCallback.m_hitNormalWorld;
+				playerObject.getInstance(0)->applyCentralForce({ 0,jumpImpulse,0 });
+				playerObject.getInstance(0)->activate(1);
+			}
+			*/
+			/*
+			if(abs(playerObject.getInstance(0)->getLinearVelocity().getY()) < 0.01)
+			{
+				canJump = false;
+				jumpingCharge = 0;
+				playerObject.getInstance(0)->applyCentralForce({ 0,jumpImpulse,0 });
+				playerObject.getInstance(0)->activate(1);
+			}
+			*/
+			canJump2 = false;
+			int numManifolds = world->getDispatcher()->getNumManifolds();
+			for (int i = 0; i < numManifolds; i++)
+			{
+				btPersistentManifold* contactManifold = world->getDispatcher()->getManifoldByIndexInternal(i);
+				const btCollisionObject* obA = contactManifold->getBody0();
+				const btCollisionObject* obB = contactManifold->getBody1();
+				if (obA == playerObject.getInstance(0) || obB == playerObject.getInstance(0))
+				{
+					int numContacts = contactManifold->getNumContacts();
+					for (int j = 0; j < numContacts; j++)
+					{
+						btManifoldPoint& pt = contactManifold->getContactPoint(j);
+						if (pt.getDistance() < 0.01f)
+						{
+							btVector3 normal;
+							if (obB == playerObject.getInstance(0)) //Check each object to see if it's the rigid body and determine the correct normal.
+							{
+								normal = -pt.m_normalWorldOnB;
+							}
+							else
+							{
+								normal = pt.m_normalWorldOnB;
+							}
+
+							if (normal.y() > 0.2f /*put the threshold here */)
+							{
+								//The character controller is on the ground
+								canJump2 = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+
+			if (canJump2 && canJump)
+			{
+				ilog("jump");
+				playerObject.getInstance(0)->setLinearVelocity({ 0,jumpImpulse,0 });
+				playerObject.getInstance(0)->activate(true);
+				canJump = false;
+				jumpingCharge = 0;
+			}
 		}
 
-		auto v = playerObject.getIndtance(0)->getLinearVelocity();
+		auto v = playerObject.getInstance(0)->getLinearVelocity();
 		const int maxVelocity = 6;
 		if (v.getZ() > maxVelocity) { v.setZ(maxVelocity); }
 		if (v.getZ() < -maxVelocity) { v.setZ(-maxVelocity); }
 		if (v.getX() > maxVelocity) { v.setX(maxVelocity); }
 		if (v.getX() < -maxVelocity) { v.setX(-maxVelocity); }
-		playerObject.getIndtance(0)->setLinearVelocity(v);
+		playerObject.getInstance(0)->setLinearVelocity(v);
 #pragma endregion
 
 		world->stepSimulation(deltatime);
@@ -393,14 +449,12 @@ int main()
 
 		}
 
-		glm::vec3 playerPos;
-		btTransform playerTransform;
-		playerObject.getIndtance(0)->getMotionState()->getWorldTransform(playerTransform);
-		playerObject.getIndtance(0)->setWorldTransform(playerTransform);
+		playerObject.getInstance(0)->getMotionState()->getWorldTransform(playerTransform);
+		//playerObject.getInstance(0)->setWorldTransform(playerTransform);
 		playerPos = { playerTransform.getOrigin().x(), playerTransform.getOrigin().y(), playerTransform.getOrigin().z() };
-		
 
-		camera.playerPosition = playerPos;
+
+		camera.playerPosition = { playerPos.x(), playerPos.y(), playerPos.z() };
 		camera.topDownAngle = playerAngle;
 		playerObject.draw();
 		

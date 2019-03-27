@@ -235,7 +235,7 @@ public:
 	void setElementPosition(int index, glm::vec3 position);
 	void aplyForce(int index);
 
-	btRigidBody* getIndtance(int index) { return rigidBodies[index]; }
+	btRigidBody* getInstance(int index) { return rigidBodies[index]; }
 
 	bool colidesWith(int thisIndex, PhisicalObject with, int secondIndex);
 	bool colidesWith(int thisIndex, btRigidBody* with);
