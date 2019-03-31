@@ -42,6 +42,12 @@ uniform vec3 u_lightSpecular[LIGHT_COUNT];
 uniform float u_lightStrength[LIGHT_COUNT]; //used to determine the distance to shine,   0 means infinite distance
 uniform int u_lightCount;
 
+void unblend(inout vec3 c, float level)
+{
+	c.rgb *= level;
+	c.rgb = floor(c.rgb);
+	c.rgb /= level;
+}
 
 
 float distanceDim(float dist, float strength)
@@ -51,9 +57,10 @@ float distanceDim(float dist, float strength)
 	return brightness;
 }
 
-void unblend(inout vec3 a, float b)
-{	
-	a.rgb = (floor(a.rgb/b).rgb) * b;
+vec3 cellShade(in vec3 c, const in int factor)
+{
+	
+	return (0,0,0);	
 }
 
 vec3 phongModel(vec3 normal, const in Light light)
@@ -70,8 +77,12 @@ vec3 phongModel(vec3 normal, const in Light light)
 			lightVectorWorld = normalize(light.position.xyz - worldspace); 
 		}
 
-	float diffusedBrightness = max(0, dot(lightVectorWorld, normal));
-	
+		float cosDif = max(0.f, dot(lightVectorWorld, normal));
+	float diffusedBrightness = cosDif;
+	//const int levels = 4;
+	//const float scaleFactor = 1.0f /levels;
+	//float diffusedBrightness = floor(cosDif * levels) * scaleFactor;
+
 
 	float specularBrightness;
 	vec3 reflectedLightVectorWorld = reflect(-lightVectorWorld, normal);
@@ -114,7 +125,9 @@ subroutine uniform textreType u_tProgram;
 subroutine (textreType)
 vec3 p_withT(vec2 coordonates)
 {
-	return texture2D(u_sampl, coordonates).rgb;
+	vec3 c = texture2D(u_sampl, coordonates).rgb;
+	//unblend(c,4);
+	return c;
 }
 
 subroutine (textreType)

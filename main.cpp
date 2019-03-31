@@ -44,8 +44,6 @@ float height = 720;
 
 using glm::mat4;
 
-
-
 int main()
 {
 
@@ -87,7 +85,7 @@ int main()
 
 	auto windoHandle = window.getSystemHandle();
 
-	//window.setVerticalSyncEnabled(1);
+	window.setVerticalSyncEnabled(true);
 
 	glewInit();
 	glewExperimental = GL_TRUE;
@@ -97,7 +95,7 @@ int main()
 #ifdef _DEBUG
 	glEnable(GL_DEBUG_OUTPUT);
 #endif
-	
+
 	glEnable(GL_CULL_FACE);
 
 
@@ -130,8 +128,8 @@ int main()
 	ShaderProgram normalProgram(VertexShader("vertn.vert"), FragmentShader("fragn.frag"));
 	ShaderProgram textureProgram(VertexShader("vertt.vert"), FragmentShader("fragt.frag"));
 	ShaderProgram debugShader(VertexShader("debugShader.vert"), FragmentShader("debugShader.frag"));
-	
-	customBulletdebuggClass debugDrawer(&debugShader ,&camera);
+
+	customBulletdebuggClass debugDrawer(&debugShader, &camera);
 
 	world->setDebugDrawer(&debugDrawer);
 	world->getDebugDrawer()->setDebugMode(btIDebugDraw::DebugDrawModes::DBG_DrawWireframe);
@@ -156,7 +154,7 @@ int main()
 	std::cout << glGetString(GL_VERSION);
 
 
-	
+
 
 	GameObject plan(vertexBuffer(planVertexes, plansize * 4), indexBuffer(planIndices, planIndicessize * 4), vertexAttribute({ 3,3,3 }), &normalProgram, &camera);
 	plan.pushElement(glm::mat4(0));
@@ -168,11 +166,14 @@ int main()
 	sf::Clock fpsClock;
 	bool updatemouse = 0;
 	int frames = 0;
-	
+
 	PhisicalObject playerObject(&camera, &textureProgram, &light, world, nullptr/*new btSphereShape(1)*/, 10);
 	playerObject.loadCollisionBox(modelManager.getData("objects//sphere.obj"), nullptr);
 	playerObject.loadPtn323(modelManager.getData("objects//sphere.obj"), textureManager);
-	playerObject.pushElement({ 0, 3 ,0 });
+	//playerObject.pushElement({ -37, 3 ,45 });
+	playerObject.pushElement({ 40, 3 , -40 });
+	playerObject.objectData[0].material = Material::cyanPlastic();
+	playerObject.objectData[0].material.ka *= 1.1;
 
 	//playerObject.getIndtance(0)->setFriction(0.5f);
 	
@@ -389,7 +390,7 @@ int main()
 					for (int j = 0; j < numContacts; j++)
 					{
 						btManifoldPoint& pt = contactManifold->getContactPoint(j);
-						if (pt.getDistance() < 0.012f)
+						if (pt.getDistance() < 0.014f)
 						{
 							btVector3 normal;
 							if (obB == playerObject.getInstance(0)) //Check each object to see if it's the rigid body and determine the correct normal.
@@ -401,17 +402,17 @@ int main()
 								normal = pt.m_normalWorldOnB;
 							}
 
-							if (normal.y() > 0.3f /*put the threshold here */)
+							if (normal.y() > 0.25f /*put the threshold here */)
 							{
 								//The character controller is on the ground
 								canJump2 = true;
-								break;
+								goto endCanJump;
 							}
 						}
 					}
 				}
 			}
-
+			endCanJump:
 			if (canJump2 && canJump)
 			{
 				playerObject.getInstance(0)->setLinearVelocity({ 0,jumpImpulse,0 });
@@ -431,20 +432,6 @@ int main()
 #pragma endregion
 
 		world->stepSimulation(deltatime);
-
-		if(gameObjectPool.phisicalObjectVector.getPositionById(250) != -1)
-		{
-
-			if (gameObjectPool.phisicalObjectVector.getElementById(250).colidesWith(0, playerObject, 0))
-			{
-				gameObjectPool.phisicalObjectVector.getElementById(250).objectData[0].material = Material::cyanRubber();
-			}
-			else
-			{
-				gameObjectPool.phisicalObjectVector.getElementById(250).objectData[0].material = Material::gold();
-			}
-
-		}
 
 		playerObject.getInstance(0)->getMotionState()->getWorldTransform(playerTransform);
 		//playerObject.getInstance(0)->setWorldTransform(playerTransform);

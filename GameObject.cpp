@@ -821,13 +821,10 @@ void PhisicalObject::pushElement(glm::vec3 position, glm::vec3 rotation)
 		delete[] masses;
 #endif // ^ no optimisations
 
-		
-	
-
 
 		t.setIdentity();
 		t.setOrigin({ position.x, position.y, position.z});
-		t.setRotation({ rotation.x, rotation.y, rotation.z });
+		t.setRotation({ rotation.y, rotation.x, rotation.z });
 
 
 		btMotionState *motion = new btDefaultMotionState(t);
