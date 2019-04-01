@@ -1,9 +1,3 @@
-@phisical "objects/soldier.obj" @position 10, 9, 10 @mass 10
-@phisical "objects/soldier.obj" @position 12, 9, 10 
-@phisical "objects/soldier.obj" @position 14, 9, 10
-@phisical "objects/soldier.obj" @position 10, 9, 12
-@phisical "objects/soldier.obj" @position 10, 9, 14
-@phisical "objects/soldier.obj" @position 14, 9, 14 @mass 10 @unique @id 250
 @phisical "objects/level1.obj" @position 0, 0, 0 @mass 0 @collision "" @id 440
 @phisical "objects/bigWood.obj" @position 48, 7, -10 @rotation 0, 90, 0 @mass 15 @collision "" 
 @phisical "objects/bloc.obj" @position 35, 4, 45 @mass 10
@@ -13,11 +7,11 @@
 @phisical "objects/bloc.obj" @position 54 2, -52
 @phisical "objects/bloc.obj" @position 53.5 3, -52.5
 @phisical "objects/sphere.obj" @position 52, 3, -40 @mass 7 @collision ""
-@phisical "objects/soldier.obj" @position 42, 8, 20 @mass 10
+@phisical "objects/soldier.obj" @position 43, 8, 20 @mass 10
 @phisical "objects/soldier.obj" @position 40, 8, 23 @mass 10
-@phisical "objects/soldier.obj" @position 42, 8, 26 @mass 10
+@phisical "objects/soldier.obj" @position 43, 8, 26 @mass 10
 @phisical "objects/soldier.obj" @position 40, 8, 29 @mass 10
-@phisical "objects/soldier.obj" @position 42, 8, 32 @mass 10
+@phisical "objects/soldier.obj" @position 43, 8, 32 @mass 10
 @phisical "objects/soldier.obj" @position 40, 8, 35 @mass 10
 @phisical "objects/soldier.obj" @position -10, 6, 58.5
 @phisical "objects/soldier.obj" @position -8, 6, 58.5
@@ -37,6 +31,12 @@
 @phisical "objects/wood.obj" @position -29 10, 8 @rotation 90, 0, 90
 @phisical "objects/train.obj" @position 40 3, -52.5 @mass 15 @rotation 0, 180, 0
 @phisical "objects/train.obj" @position -58 5, 60
+@phisical "objects/wood.obj" @position -4 12, -12.5 @rotation 90, 90, 90
+@phisical "objects/wood.obj" @position -9 12, -12.5 @rotation 90, 90, 90
+@phisical "objects/wood.obj" @position -4 22, -12.5 @rotation 90, 90, 90
+@phisical "objects/wood.obj" @position -9 22, -12.5 @rotation 90, 90, 90
+@phisical "objects/soldier.obj" @position -15, 12, -29.5
+@phisical "objects/soldier.obj" @position 1.5, 12, -12
 @light @position 0, 20, 0 @diffuse 1, 1, 1 @specular 1, 1, 1 @ambience 0.3, 0.3, 0.3 @strength 0.0003
 @light @position 56, 0, 35 @diffuse 0.9, 0.3, 0.3 @specular 1.0, 0, 0 @ambience 0.4, 0.1, 0.1 @strength 0.1 
 @light @position 58, 0, 35 @diffuse 0.9, 0.3, 0.3 @specular 1.0, 0, 0 @ambience 0.4, 0.1, 0.1 @strength 0.1 
@@ -45,3 +45,4 @@
 @light @position -32, 15, 36 @diffuse 1, 1, 1 @specular 0.8, 0.8, 0.8 @ambience 0.2, 0.2, 0.2 @strength 0.003 
 @light @position 46, 15, -46 @diffuse 1, 1, 1 @specular 0.8, 0.8, 0.8 @ambience 0.2, 0.2, 0.2 @strength 0.002 
 @light @position -35, 15, -32 @diffuse 1, 1, 1 @specular 0.8, 0.8, 0.8 @ambience 0.2, 0.2, 0.2 @strength 0.001 
+@light @position 0.5, 22, -11 @diffuse 0.3, 0.4, 1.0 @specular 0.1, 0.2, 1.0 @ambience 0.1, 0.1, 0.22 @strength 0.002 

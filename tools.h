@@ -19,6 +19,12 @@
 #endif
 
 #ifdef FORCE_LOG
+#define MAIN main()
+#else
+#define MAIN WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR lpCmdLine, int nCmdShow)
+#endif
+
+#ifdef FORCE_LOG
 inline void llog()
 {
 	std::cout << "\n";
@@ -129,44 +135,3 @@ inline void elog(F f, T ...args)
 
 }
 #endif
-
-
-/*
-
-#ifdef _DEBUG 
-
-#define log std::cout
-
-#else // _DEBUG
-
-
-struct _log
-{
-}log;
-
-template<class T>
-const _log& operator<<(const _log &l,const T &other) {}
-
-#endif // RELEASE
-
-*/
-
-/*
-#ifndef _DEBUG
-static struct __RemoveCout
-{
-	__RemoveCout() { std::cout.rdbuf(nullptr); }
-}_RemoveCout;
-#endif // !_DEBUG
-*/
-
-/*
-struct _Log {}log;
-template<typename T>
-_Log operator<<(_Log logger, const T &val) {
-#ifdef _DEBUG
-	std::cout << val;
-#endif
-	return logger;
-}
-*/

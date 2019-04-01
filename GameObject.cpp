@@ -771,6 +771,10 @@ void PhisicalObject::draw()
 void PhisicalObject::pushElement(glm::vec3 position, glm::vec3 rotation)
 {
 	rotation = glm::radians(rotation);
+	float t = rotation.x;
+	rotation.x = rotation.y;
+	rotation.y = t;
+
 
 	/*
 	btTransform t;
@@ -824,7 +828,7 @@ void PhisicalObject::pushElement(glm::vec3 position, glm::vec3 rotation)
 
 		t.setIdentity();
 		t.setOrigin({ position.x, position.y, position.z});
-		t.setRotation({ rotation.y, rotation.x, rotation.z });
+		t.setRotation({ rotation.x, rotation.y, rotation.z });
 
 
 		btMotionState *motion = new btDefaultMotionState(t);

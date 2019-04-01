@@ -44,9 +44,8 @@ float height = 720;
 
 using glm::mat4;
 
-int main()
+int MAIN
 {
-
 #pragma region phisicalWorld
 	btDynamicsWorld *world;
 	btDispatcher *dispatcher;
@@ -62,7 +61,7 @@ int main()
 	world = new btDiscreteDynamicsWorld(dispatcher, broadPhase, solver, collisionConfiguration);
 	world->setGravity({ 0, -9.81f, 0 });
 
-
+	/*//plan
 	btTransform t;
 	t.setIdentity();
 	t.setOrigin({ 0, -1, 0 });
@@ -73,6 +72,7 @@ int main()
 	btRigidBody body(info);
 
 	world->addRigidBody(&body);
+	*/
 #pragma endregion
 
 
@@ -172,7 +172,7 @@ int main()
 	playerObject.loadPtn323(modelManager.getData("objects//sphere.obj"), textureManager);
 	//playerObject.pushElement({ -37, 3 ,45 });
 	playerObject.pushElement({ 40, 3 , -40 });
-	playerObject.objectData[0].material = Material::cyanPlastic();
+	playerObject.objectData[0].material = Material::yellowPlastic();
 	playerObject.objectData[0].material.ka *= 1.1;
 
 	//playerObject.getIndtance(0)->setFriction(0.5f);
@@ -298,15 +298,6 @@ int main()
 			playerObject.getInstance(0)->activate(1);
 		}
 		
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::R))
-		{
-			camera.moveUp(deltatime);
-		}
-		
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::F))
-		{
-			camera.moveDown(deltatime);
-		}
 
 		if (updatemouse)
 		{
@@ -345,38 +336,10 @@ int main()
 		btVector3 playerPos;
 		btTransform playerTransform;
 		playerObject.getInstance(0)->getMotionState()->getWorldTransform(playerTransform);
-		//playerObject.getInstance(0)->setWorldTransform(playerTransform);
 		playerPos = { playerTransform.getOrigin().x(), playerTransform.getOrigin().y(), playerTransform.getOrigin().z() };
 
 		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
 		{
-			/*
-			btVector3 direction = { 0,-1,0 };
-			btCollisionWorld::ClosestRayResultCallback RayCallback(playerPos + (direction * 1.01), playerPos + (direction * 1.11));
-			//RayCallback.
-
-			// Perform raycast
-			world->rayTest(playerPos + (direction * 1.01), playerPos + (direction * 1.11), RayCallback);
-			if (RayCallback.hasHit() && canJump) 
-			{
-				ilog("jumped");
-				jumpingCharge = 0;
-				canJump = false;
-				//End = RayCallback.m_hitPointWorld;
-				//Normal = RayCallback.m_hitNormalWorld;
-				playerObject.getInstance(0)->applyCentralForce({ 0,jumpImpulse,0 });
-				playerObject.getInstance(0)->activate(1);
-			}
-			*/
-			/*
-			if(abs(playerObject.getInstance(0)->getLinearVelocity().getY()) < 0.01)
-			{
-				canJump = false;
-				jumpingCharge = 0;
-				playerObject.getInstance(0)->applyCentralForce({ 0,jumpImpulse,0 });
-				playerObject.getInstance(0)->activate(1);
-			}
-			*/
 			canJump2 = false;
 			int numManifolds = world->getDispatcher()->getNumManifolds();
 			for (int i = 0; i < numManifolds; i++)
@@ -433,10 +396,47 @@ int main()
 
 		world->stepSimulation(deltatime);
 
+		///remove objects
+		int objects = gameObjectPool.phisicalObjectVector.elements.size();
+		for(int y=0; y<objects; y++)
+		{
+			int size = gameObjectPool.phisicalObjectVector.elements[y].rigidBodies.size();
+			for (int i = 0; i < size; i++)
+			{
+				btTransform pos;
+				gameObjectPool.phisicalObjectVector.elements[y].rigidBodies[i]->getMotionState()->getWorldTransform(pos);
+				if (pos.getOrigin().y() < -60.f)
+				{
+					gameObjectPool.phisicalObjectVector.elements[y].deleteElement(i);
+					i--;
+					size--;
+				}
+
+			}
+		
+		}
+		
+		
+		/*int size = gameObjectPool.phisicalObjectVector.elements.size();
+		for(int i=0; i<size; i++)
+		{
+			btTransform pos;
+			//gameObjectPool.phisicalObjectVector.elements[0]. getMotionState()->getWorldTransform(pos);
+			if(pos.getOrigin().y() < -4.f)
+			{
+				i--;
+				size--;
+			}
+
+		}
+		*/
+
+		///
+
+
 		playerObject.getInstance(0)->getMotionState()->getWorldTransform(playerTransform);
-		//playerObject.getInstance(0)->setWorldTransform(playerTransform);
 		playerPos = { playerTransform.getOrigin().x(), playerTransform.getOrigin().y(), playerTransform.getOrigin().z() };
-		//ilog(playerPos.x(), playerPos.y(), playerPos.z());
+		//llog(playerPos.x(), playerPos.y(), playerPos.z());
 
 		camera.playerPosition = { playerPos.x(), playerPos.y(), playerPos.z() };
 		camera.topDownAngle = playerAngle;
@@ -446,29 +446,18 @@ int main()
 
 		//world->debugDrawWorld();
 
-		plan.draw();
+		//plan.draw();
 
 		window.pushGLStates();
-		
-
 		for(int i=0; i<2; i++)
 		{
 			glDisableVertexAttribArray(i);
 		}
-	
-
-		
-		sf::RectangleShape s({ 100,100 });
-		s.setPosition({ 100, 100 });
-
-		s.setFillColor(sf::Color::Green);
-	
-		window.setView(sf::View({ 0, 0, width, height }));
+		//sfml drawing
+			
+		//window.setView(sf::View({ 0, 0, width, height })); //todo check if necessary
 		window.display();
-
 		window.popGLStates();
-		
-		
 	}
 
 	/*
