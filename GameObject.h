@@ -211,7 +211,7 @@ public:
 	std::vector<ObjectData> objectData;
 	
 	//btCollisionShape *collisionShape = 0;
-	collisionShapeType *collisionShape = 0;
+	collisionShapeType *collisionShape = nullptr;
 	std::vector<btRigidBody*> rigidBodies;
 	
 	///should be const

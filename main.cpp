@@ -29,8 +29,10 @@
 #include "shapesGenerator.h"
 #include "GameObjectPool.h"
 #include "CharacterMouseController.h"
+#include "MenuApi.h"
 
 #include "tools.h"
+#include "declarations.h"
 
 extern "C"
 {
@@ -43,6 +45,17 @@ float width = 1280;
 float height = 720;
 
 using glm::mat4;
+
+States gameState = States::mainMenu;
+GameObjectPool gameObjectPool;
+PhisicalObject *playerPointer = nullptr;
+sf::RenderWindow *windowPointer = nullptr;
+
+extern ma::Menu mainMenu;
+extern ma::Menu gameMenu;
+extern bool levelShouldLoad;
+extern bool debugDraw;
+extern bool showFramerate;
 
 int MAIN
 {
@@ -75,13 +88,15 @@ int MAIN
 	*/
 #pragma endregion
 
-
 	sf::ContextSettings contextSettings;
 	contextSettings.depthBits = 24;
 	contextSettings.stencilBits = 8;
 	contextSettings.antialiasingLevel = 2;
 
-	sf::RenderWindow window(sf::VideoMode(width, height), "glEngine", sf::Style::Default, contextSettings);
+	sf::RenderWindow window(sf::VideoMode(width, height), ((char*)glGetString(GL_RENDERER)), sf::Style::Default, contextSettings);
+	windowPointer = &window;
+	
+	initializeMenu(&window);
 
 	auto windoHandle = window.getSystemHandle();
 
@@ -134,9 +149,8 @@ int MAIN
 	world->setDebugDrawer(&debugDrawer);
 	world->getDebugDrawer()->setDebugMode(btIDebugDraw::DebugDrawModes::DBG_DrawWireframe);
 
-	GameObjectPool gameObjectPool;
 	gameObjectPool.initialize(&textureProgram, &camera, &light, world, &textureManager, &modelManager);
-	gameObjectPool.load("maps//map1.txt");
+	
 
 	float *planVertexes = 0;
 	float *planVertexes2 = 0;
@@ -151,10 +165,10 @@ int MAIN
 
 
 	shapeGenerator::generatePlane(&planVertexes, &planIndices, 512, plansize, planIndicessize);
-	std::cout << glGetString(GL_VERSION);
+	llog(glGetString(GL_VERSION));
 
 
-
+	glClearColor(0.08, 0.08, 0.1, 1.0);
 
 	GameObject plan(vertexBuffer(planVertexes, plansize * 4), indexBuffer(planIndices, planIndicessize * 4), vertexAttribute({ 3,3,3 }), &normalProgram, &camera);
 	plan.pushElement(glm::mat4(0));
@@ -174,6 +188,7 @@ int MAIN
 	playerObject.pushElement({ 40, 3 , -40 });
 	playerObject.objectData[0].material = Material::yellowPlastic();
 	playerObject.objectData[0].material.ka *= 1.1;
+	playerPointer = &playerObject;
 
 	//playerObject.getIndtance(0)->setFriction(0.5f);
 	
@@ -181,7 +196,7 @@ int MAIN
 	bool canJump2 = true;
 	float jumpingCharge = 0;
 
-	window.setTitle((char*)glGetString(GL_RENDERER));
+	
 	while (window.isOpen())
 	{
 
@@ -199,17 +214,24 @@ int MAIN
 			time = frames / time;
 			char c[12];
 			sprintf(c, "%f", time);
-			window.setTitle(c);
+			if(showFramerate)
+			{
+				window.setTitle(c);
+			}else
+			{
+				window.setTitle("ToyCeption");
+			}
 			frames = 0;
 		}
 
-		//glClearColor(0.1, 0.5, 1.0, 1.0);
 		glViewport(0, 0, width, height);
 
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 		mouseScroll *= 0.4f;
 
+		bool escapeReleased = false;
+		bool mouseButtonReleased = false;
 		sf::Event event;
 		while (window.pollEvent(event))
 		{
@@ -246,207 +268,253 @@ int MAIN
 			{
 				updatemouse = 1;
 				camera.oldMousePosition = { sf::Mouse::getPosition(window).x, (float)sf::Mouse::getPosition(window).y };
+			}else
+			if(event.type == sf::Event::KeyReleased)
+			{
+				if(event.key.code == sf::Keyboard::Escape)
+				{
+					escapeReleased = true;
+				}
+			}else
+			if(event.type == sf::Event::MouseButtonReleased)
+			{
+				if(event.mouseButton.button == sf::Mouse::Button::Left)
+				{
+					mouseButtonReleased = true;
+				}
 			}
 
 		}
 
-#pragma region keys
-		if (sf::Keyboard::isKeyPressed((sf::Keyboard::Escape)))
+		switch (gameState)
 		{
-			exit(0);
-			//ShowWindow((HWND)(windoHandle), SW_SHOWNOACTIVATE);
-			//SendMessage((HWND)windoHandle, WM_KILLFOCUS, 0, 0);
-			//updatemouse = 0;
-		}
+		case States::none:
+			break;
+		case States::mainMenu:
+		{
 
-		float maxSpeed = 35000 * deltatime;
-		float jumpImpulse = 7.5;
-	
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
-		{
-			camera.moveFront(deltatime);
-
-			playerObject.getInstance(0)->applyCentralForce({ 0,0,-maxSpeed * cos(playerAngle) });
-			playerObject.getInstance(0)->applyCentralForce({ -maxSpeed * sin(playerAngle), 0, 0 });
-			playerObject.getInstance(0)->activate(1);
+			break; 
 		}
-		
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+		case States::inGameMenu: 
 		{
-			camera.moveBack(deltatime);
-
-			playerObject.getInstance(0)->applyCentralForce({ 0,0,maxSpeed * cos(playerAngle) });
-			playerObject.getInstance(0)->applyCentralForce({ maxSpeed * sin(playerAngle), 0, 0 });
-			playerObject.getInstance(0)->activate(1);
+		
+			break;
 		}
-		
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+		case States::inGame:
 		{
-			camera.moveLeft(deltatime);
-		
-			playerObject.getInstance(0)->applyCentralForce({ -maxSpeed * cos(playerAngle),0,0 });
-			playerObject.getInstance(0)->applyCentralForce({ 0,0, maxSpeed * sin(playerAngle) });
-			playerObject.getInstance(0)->activate(1);
-		}
-		
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
-		{
-			camera.moveRight(deltatime);
-		
-			playerObject.getInstance(0)->applyCentralForce({ maxSpeed * cos(playerAngle),0,0 });
-			playerObject.getInstance(0)->applyCentralForce({ 0,0,maxSpeed * -sin(playerAngle) });
-			playerObject.getInstance(0)->activate(1);
-		}
-		
-
-		if (updatemouse)
-		{
-			if (!camera.firstPersonCamera)
+			
+			if(escapeReleased == true)
 			{
-				camera.mouseUpdate({ (float)sf::Mouse::getPosition(window).x, (float)sf::Mouse::getPosition(window).y }, window);
+				gameState = States::inGameMenu;
+				escapeReleased = false;
+
+			}
+
+#pragma region keys
+			if (sf::Keyboard::isKeyPressed((sf::Keyboard::Escape)))
+			{
+
+				//exit(0);
+				//ShowWindow((HWND)(windoHandle), SW_SHOWNOACTIVATE);
+				//SendMessage((HWND)windoHandle, WM_KILLFOCUS, 0, 0);
+				//updatemouse = 0;
+			}
+
+			float maxSpeed = 35000 * deltatime;
+			float jumpImpulse = 7.5;
+
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+			{
+				camera.moveFront(deltatime);
+
+				playerObject.getInstance(0)->applyCentralForce({ 0,0,-maxSpeed * cos(playerAngle) });
+				playerObject.getInstance(0)->applyCentralForce({ -maxSpeed * sin(playerAngle), 0, 0 });
+				playerObject.getInstance(0)->activate(1);
+			}
+
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+			{
+				camera.moveBack(deltatime);
+
+				playerObject.getInstance(0)->applyCentralForce({ 0,0,maxSpeed * cos(playerAngle) });
+				playerObject.getInstance(0)->applyCentralForce({ maxSpeed * sin(playerAngle), 0, 0 });
+				playerObject.getInstance(0)->activate(1);
+			}
+
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+			{
+				camera.moveLeft(deltatime);
+
+				playerObject.getInstance(0)->applyCentralForce({ -maxSpeed * cos(playerAngle),0,0 });
+				playerObject.getInstance(0)->applyCentralForce({ 0,0, maxSpeed * sin(playerAngle) });
+				playerObject.getInstance(0)->activate(1);
+			}
+
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+			{
+				camera.moveRight(deltatime);
+
+				playerObject.getInstance(0)->applyCentralForce({ maxSpeed * cos(playerAngle),0,0 });
+				playerObject.getInstance(0)->applyCentralForce({ 0,0,maxSpeed * -sin(playerAngle) });
+				playerObject.getInstance(0)->activate(1);
+			}
+
+
+			if (updatemouse)
+			{
+				if (!camera.firstPersonCamera)
+				{
+					camera.mouseUpdate({ (float)sf::Mouse::getPosition(window).x, (float)sf::Mouse::getPosition(window).y }, window);
+				}
+				else
+				{
+					characterController.update({ (float)sf::Mouse::getPosition(window).x, (float)sf::Mouse::getPosition(window).y }, true, mouseScroll, window);
+				}
+
+			}
+
+
+			if (window.hasFocus())
+			{
+				window.setMouseCursorVisible(0);
+				updatemouse = 1;
 			}
 			else
 			{
-				characterController.update({ (float)sf::Mouse::getPosition(window).x, (float)sf::Mouse::getPosition(window).y }, true, mouseScroll, window);
+				window.setMouseCursorVisible(1);
+				updatemouse = 0;
 			}
 
-		}
+			jumpingCharge += deltatime;
 
-		if (window.hasFocus())
-		{
-			window.setMouseCursorVisible(0);
-			updatemouse = 1;
-		}
-		else
-		{
-			window.setMouseCursorVisible(1);
-			updatemouse = 0;
-		}
-		
-		jumpingCharge += deltatime;
-
-		if(canJump == false)
-		{
-			if(jumpingCharge >= 0.2)
+			if (canJump == false)
 			{
-				canJump = true;
-				jumpingCharge = 0;
-			}
-		}
-		btVector3 playerPos;
-		btTransform playerTransform;
-		playerObject.getInstance(0)->getMotionState()->getWorldTransform(playerTransform);
-		playerPos = { playerTransform.getOrigin().x(), playerTransform.getOrigin().y(), playerTransform.getOrigin().z() };
-
-		if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
-		{
-			canJump2 = false;
-			int numManifolds = world->getDispatcher()->getNumManifolds();
-			for (int i = 0; i < numManifolds; i++)
-			{
-				btPersistentManifold* contactManifold = world->getDispatcher()->getManifoldByIndexInternal(i);
-				const btCollisionObject* obA = contactManifold->getBody0();
-				const btCollisionObject* obB = contactManifold->getBody1();
-				if (obA == playerObject.getInstance(0) || obB == playerObject.getInstance(0))
+				if (jumpingCharge >= 0.2)
 				{
-					int numContacts = contactManifold->getNumContacts();
-					for (int j = 0; j < numContacts; j++)
-					{
-						btManifoldPoint& pt = contactManifold->getContactPoint(j);
-						if (pt.getDistance() < 0.014f)
-						{
-							btVector3 normal;
-							if (obB == playerObject.getInstance(0)) //Check each object to see if it's the rigid body and determine the correct normal.
-							{
-								normal = -pt.m_normalWorldOnB;
-							}
-							else
-							{
-								normal = pt.m_normalWorldOnB;
-							}
+					canJump = true;
+					jumpingCharge = 0;
+				}
+			}
+			btVector3 playerPos;
+			btTransform playerTransform;
+			playerObject.getInstance(0)->getMotionState()->getWorldTransform(playerTransform);
+			playerPos = { playerTransform.getOrigin().x(), playerTransform.getOrigin().y(), playerTransform.getOrigin().z() };
 
-							if (normal.y() > 0.25f /*put the threshold here */)
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+			{
+				canJump2 = false;
+				int numManifolds = world->getDispatcher()->getNumManifolds();
+				for (int i = 0; i < numManifolds; i++)
+				{
+					btPersistentManifold* contactManifold = world->getDispatcher()->getManifoldByIndexInternal(i);
+					const btCollisionObject* obA = contactManifold->getBody0();
+					const btCollisionObject* obB = contactManifold->getBody1();
+					if (obA == playerObject.getInstance(0) || obB == playerObject.getInstance(0))
+					{
+						int numContacts = contactManifold->getNumContacts();
+						for (int j = 0; j < numContacts; j++)
+						{
+							btManifoldPoint& pt = contactManifold->getContactPoint(j);
+							if (pt.getDistance() < 0.014f)
 							{
-								//The character controller is on the ground
-								canJump2 = true;
-								goto endCanJump;
+								btVector3 normal;
+								if (obB == playerObject.getInstance(0)) //Check each object to see if it's the rigid body and determine the correct normal.
+								{
+									normal = -pt.m_normalWorldOnB;
+								}
+								else
+								{
+									normal = pt.m_normalWorldOnB;
+								}
+
+								if (normal.y() > 0.25f /*put the threshold here */)
+								{
+									//The character controller is on the ground
+									canJump2 = true;
+									goto endCanJump;
+								}
 							}
 						}
 					}
 				}
-			}
 			endCanJump:
-			if (canJump2 && canJump)
-			{
-				playerObject.getInstance(0)->setLinearVelocity({ 0,jumpImpulse,0 });
-				playerObject.getInstance(0)->activate(true);
-				canJump = false;
-				jumpingCharge = 0;
+				if (canJump2 && canJump)
+				{
+					playerObject.getInstance(0)->setLinearVelocity({ 0,jumpImpulse,0 });
+					playerObject.getInstance(0)->activate(true);
+					canJump = false;
+					jumpingCharge = 0;
+				}
 			}
-		}
 
-		auto v = playerObject.getInstance(0)->getLinearVelocity();
-		const int maxVelocity = 6;
-		if (v.getZ() > maxVelocity) { v.setZ(maxVelocity); }
-		if (v.getZ() < -maxVelocity) { v.setZ(-maxVelocity); }
-		if (v.getX() > maxVelocity) { v.setX(maxVelocity); }
-		if (v.getX() < -maxVelocity) { v.setX(-maxVelocity); }
-		playerObject.getInstance(0)->setLinearVelocity(v);
+			auto v = playerObject.getInstance(0)->getLinearVelocity();
+			const int maxVelocity = 6;
+			if (v.getZ() > maxVelocity) { v.setZ(maxVelocity); }
+			if (v.getZ() < -maxVelocity) { v.setZ(-maxVelocity); }
+			if (v.getX() > maxVelocity) { v.setX(maxVelocity); }
+			if (v.getX() < -maxVelocity) { v.setX(-maxVelocity); }
+			playerObject.getInstance(0)->setLinearVelocity(v);
 #pragma endregion
 
-		world->stepSimulation(deltatime);
+			world->stepSimulation(deltatime);
 
-		///remove objects
-		int objects = gameObjectPool.phisicalObjectVector.elements.size();
-		for(int y=0; y<objects; y++)
-		{
-			int size = gameObjectPool.phisicalObjectVector.elements[y].rigidBodies.size();
-			for (int i = 0; i < size; i++)
+			///remove objects
+			int objects = gameObjectPool.phisicalObjectVector.elements.size();
+			for (int y = 0; y < objects; y++)
+			{
+				int size = gameObjectPool.phisicalObjectVector.elements[y].rigidBodies.size();
+				for (int i = 0; i < size; i++)
+				{
+					btTransform pos;
+					gameObjectPool.phisicalObjectVector.elements[y].rigidBodies[i]->getMotionState()->getWorldTransform(pos);
+					if (pos.getOrigin().y() < -60.f)
+					{
+						gameObjectPool.phisicalObjectVector.elements[y].deleteElement(i);
+						i--;
+						size--;
+					}
+
+				}
+
+			}
+
+
+			/*int size = gameObjectPool.phisicalObjectVector.elements.size();
+			for(int i=0; i<size; i++)
 			{
 				btTransform pos;
-				gameObjectPool.phisicalObjectVector.elements[y].rigidBodies[i]->getMotionState()->getWorldTransform(pos);
-				if (pos.getOrigin().y() < -60.f)
+				//gameObjectPool.phisicalObjectVector.elements[0]. getMotionState()->getWorldTransform(pos);
+				if(pos.getOrigin().y() < -4.f)
 				{
-					gameObjectPool.phisicalObjectVector.elements[y].deleteElement(i);
 					i--;
 					size--;
 				}
 
 			}
-		
-		}
-		
-		
-		/*int size = gameObjectPool.phisicalObjectVector.elements.size();
-		for(int i=0; i<size; i++)
-		{
-			btTransform pos;
-			//gameObjectPool.phisicalObjectVector.elements[0]. getMotionState()->getWorldTransform(pos);
-			if(pos.getOrigin().y() < -4.f)
+			*/
+
+			///
+
+			playerObject.getInstance(0)->getMotionState()->getWorldTransform(playerTransform);
+			playerPos = { playerTransform.getOrigin().x(), playerTransform.getOrigin().y(), playerTransform.getOrigin().z() };
+			//llog(playerPos.x(), playerPos.y(), playerPos.z());
+
+			camera.playerPosition = { playerPos.x(), playerPos.y(), playerPos.z() };
+			camera.topDownAngle = playerAngle;
+			playerObject.draw();
+
+			gameObjectPool.drawAll();
+
+			if (debugDraw) 
 			{
-				i--;
-				size--;
+				world->debugDrawWorld();
 			}
-
+			//plan.draw();
+			break;
 		}
-		*/
-
-		///
-
-
-		playerObject.getInstance(0)->getMotionState()->getWorldTransform(playerTransform);
-		playerPos = { playerTransform.getOrigin().x(), playerTransform.getOrigin().y(), playerTransform.getOrigin().z() };
-		//llog(playerPos.x(), playerPos.y(), playerPos.z());
-
-		camera.playerPosition = { playerPos.x(), playerPos.y(), playerPos.z() };
-		camera.topDownAngle = playerAngle;
-		playerObject.draw();
-		
-		gameObjectPool.drawAll();
-
-		//world->debugDrawWorld();
-
-		//plan.draw();
+		default:
+			break;
+		}
 
 		window.pushGLStates();
 		for(int i=0; i<2; i++)
@@ -454,10 +522,33 @@ int MAIN
 			glDisableVertexAttribArray(i);
 		}
 		//sfml drawing
+		if (gameState == States::mainMenu)
+		{
+			window.setMouseCursorVisible(1);
+			if (!mainMenu.update(mouseButtonReleased, escapeReleased)) {exit(0);}
 			
-		//window.setView(sf::View({ 0, 0, width, height })); //todo check if necessary
+			if(levelShouldLoad)
+			{
+				gameObjectPool.clearAll();
+				gameObjectPool.lights->clear();
+				gameObjectPool.load("maps//map1.txt");
+			}
+			levelShouldLoad = false;
+		}else
+		if(gameState == States::inGameMenu)
+		{
+			window.setMouseCursorVisible(1);
+			if (!gameMenu.update(mouseButtonReleased, escapeReleased))
+			{
+				gameState = States::inGame;
+				escapeReleased = false;
+			}
+		}
+
+		window.setView(sf::View({ 0, 0, width, height })); //todo check if necessary
 		window.display();
 		window.popGLStates();
+	
 	}
 
 	/*
