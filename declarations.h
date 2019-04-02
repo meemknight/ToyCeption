@@ -3,7 +3,7 @@
 
 void initializeMenu(sf::RenderWindow *window);
 void loadLevel();
-
+void closeLevel();
 
 enum class States
 {

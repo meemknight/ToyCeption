@@ -21,6 +21,7 @@
 #include <BulletDynamics/Character/btKinematicCharacterController.h>
 
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 
 #include "Camera.h"
 #include "GameObject.h"
@@ -56,6 +57,8 @@ extern ma::Menu gameMenu;
 extern bool levelShouldLoad;
 extern bool debugDraw;
 extern bool showFramerate;
+
+sf::Music mainMusic;
 
 int MAIN
 {
@@ -101,7 +104,16 @@ int MAIN
 	auto windoHandle = window.getSystemHandle();
 
 	window.setVerticalSyncEnabled(true);
-
+	
+	if(!mainMusic.openFromFile("musiq.ogg"))
+	{
+		elog("Error loading the music file");
+	}else
+	{
+		mainMusic.play();
+		mainMusic.setLoop(true);
+	}
+	
 	glewInit();
 	glewExperimental = GL_TRUE;
 	glEnable(GL_DEPTH_TEST);
@@ -196,6 +208,7 @@ int MAIN
 	bool canJump2 = true;
 	float jumpingCharge = 0;
 
+	glm::vec3 finishPos;
 	
 	while (window.isOpen())
 	{
@@ -456,6 +469,11 @@ int MAIN
 			playerObject.getInstance(0)->setLinearVelocity(v);
 #pragma endregion
 
+			gameObjectPool.gameObjectVector.getElementById(420).setMaterial(Material::whitePlastic());
+			finishPos = gameObjectPool.gameObjectVector.getElementById(420).getInstance(0).getPosition();
+			//gameObjectPool.gameObjectVector.getElementById(420).getInstance(0).setPosition(finishPos.x, finishPos.y + cos(GetTickCount() * 0.01), finishPos.z);
+
+
 			world->stepSimulation(deltatime);
 
 			///remove objects
@@ -478,26 +496,11 @@ int MAIN
 
 			}
 
-
-			/*int size = gameObjectPool.phisicalObjectVector.elements.size();
-			for(int i=0; i<size; i++)
-			{
-				btTransform pos;
-				//gameObjectPool.phisicalObjectVector.elements[0]. getMotionState()->getWorldTransform(pos);
-				if(pos.getOrigin().y() < -4.f)
-				{
-					i--;
-					size--;
-				}
-
-			}
-			*/
-
-			///
-
 			playerObject.getInstance(0)->getMotionState()->getWorldTransform(playerTransform);
 			playerPos = { playerTransform.getOrigin().x(), playerTransform.getOrigin().y(), playerTransform.getOrigin().z() };
 			//llog(playerPos.x(), playerPos.y(), playerPos.z());
+
+			if (playerPos.y() < -10) { closeLevel(); }
 
 			camera.playerPosition = { playerPos.x(), playerPos.y(), playerPos.z() };
 			camera.topDownAngle = playerAngle;

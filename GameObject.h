@@ -80,8 +80,12 @@ public:
 		modified = 1;
 	}
 
-
 	glm::mat4 objectToWorldMatrix();
+
+	auto getPosition()
+	{
+		return glm::vec3(x, y, z);
+	}
 
 };
 

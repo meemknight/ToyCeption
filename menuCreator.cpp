@@ -2,14 +2,16 @@
 #include "tools.h"
 #include "GameObjectPool.h"
 #include "declarations.h"
+#include <SFML/Audio.hpp>
 
 extern States gameState;
 extern GameObjectPool gameObjectPool;
 extern PhisicalObject *playerPointer;
 extern sf::RenderWindow *windowPointer;
+extern sf::Music mainMusic;
 
-bool musicPlaying = 1;
-bool vsynk = 1;
+bool musicPlaying = true;
+bool vsynk = true;
 bool showFramerate = false;
 bool debugDraw = false;
 
@@ -36,6 +38,17 @@ void loadLevel()
 void setVsynk()
 {
 	windowPointer->setVerticalSyncEnabled(vsynk);
+}
+
+void setMusic()
+{
+	if(musicPlaying)
+	{
+		mainMusic.play();
+	}else
+	{
+		mainMusic.pause();
+	}
 }
 
 void loadTexture(sf::Texture &t, const char* c)
@@ -98,7 +111,7 @@ void initializeMenu(sf::RenderWindow *window)
 	///settings
 	auto settings = new ma::MenuHolder(&mainMenu);
 	auto soundGroup = new ma::ButtonGroup(&mainMenu);
-	soundGroup->appendElement(new ma::OnOffButton(&offTexture, &onTexture, nullptr, &musicPlaying));
+	soundGroup->appendElement(new ma::OnOffButton(&offTexture, &onTexture, nullptr, &musicPlaying, new ma::Function(&setMusic)));
 	soundGroup->appendElement(new ma::TextButton(&mediumTextHolderT, font, nullptr, "music", 50, sf::Color::White));
 	auto vsynkGroup = new ma::ButtonGroup(&mainMenu);
 	vsynkGroup->appendElement(new ma::OnOffButton(&offTexture, &onTexture, nullptr, &vsynk, new ma::Function(&setVsynk)));

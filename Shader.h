@@ -9,6 +9,7 @@
 #include <iostream>
 #include <map>
 #include <cstring>
+#include "tools.h"
 
 class ShaderProgram;
 
@@ -22,6 +23,11 @@ public:
 		size_t size;
 		FILE *input;
 		input = fopen(name, "rb");
+		if(input == nullptr)
+		{
+			elog("error openning the shader file: ", name);
+		}
+
 
 		fseek(input, 0, SEEK_END);
 		size = ftell(input);
@@ -52,7 +58,7 @@ public:
 		}
 
 		delete[] data;
-
+		fclose(input);
 	}
 	
 //	static using shaderType = shaderType;
