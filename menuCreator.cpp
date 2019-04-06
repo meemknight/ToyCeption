@@ -33,6 +33,7 @@ void loadLevel()
 	playerPointer->rigidBodies[0]->setAngularVelocity({ 0, 0, 0 });
 	gameState = States::inGame;
 	levelShouldLoad = true;
+
 }
 
 void setVsynk()

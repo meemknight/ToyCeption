@@ -58,6 +58,8 @@ extern bool levelShouldLoad;
 extern bool debugDraw;
 extern bool showFramerate;
 
+glm::vec3 exitPosition = { 0,0,0 };
+
 sf::Music mainMusic;
 
 int MAIN
@@ -86,7 +88,7 @@ int MAIN
 	btMotionState *motion = new btDefaultMotionState(t);
 	btRigidBody::btRigidBodyConstructionInfo info(0.0f, motion, plane);
 	btRigidBody body(info);
-
+	
 	world->addRigidBody(&body);
 	*/
 #pragma endregion
@@ -198,7 +200,7 @@ int MAIN
 	playerObject.loadPtn323(modelManager.getData("objects//sphere.obj"), textureManager);
 	//playerObject.pushElement({ -37, 3 ,45 });
 	playerObject.pushElement({ 40, 3 , -40 });
-	playerObject.objectData[0].material = Material::yellowPlastic();
+	playerObject.objectData[0].material = Material::greyMaterial(0.6, 0.7, 1, 40);
 	playerObject.objectData[0].material.ka *= 1.1;
 	playerPointer = &playerObject;
 
@@ -208,7 +210,6 @@ int MAIN
 	bool canJump2 = true;
 	float jumpingCharge = 0;
 
-	glm::vec3 finishPos;
 	
 	while (window.isOpen())
 	{
@@ -315,8 +316,8 @@ int MAIN
 		}
 		case States::inGame:
 		{
-			
-			if(escapeReleased == true)
+
+			if (escapeReleased == true)
 			{
 				gameState = States::inGameMenu;
 				escapeReleased = false;
@@ -468,10 +469,16 @@ int MAIN
 			if (v.getX() < -maxVelocity) { v.setX(-maxVelocity); }
 			playerObject.getInstance(0)->setLinearVelocity(v);
 #pragma endregion
+			//hover exit
+			{
+				int pos = gameObjectPool.gameObjectVector.getPositionById(420);
+				if (pos != -1)
+				{
+					gameObjectPool.gameObjectVector.elements[pos].getInstance(0).setPosition(exitPosition.x, exitPosition.y + cos(GetTickCount() * 0.002) * 1.5f, exitPosition.z);
+				}
 
-			gameObjectPool.gameObjectVector.getElementById(420).setMaterial(Material::whitePlastic());
-			finishPos = gameObjectPool.gameObjectVector.getElementById(420).getInstance(0).getPosition();
-			//gameObjectPool.gameObjectVector.getElementById(420).getInstance(0).setPosition(finishPos.x, finishPos.y + cos(GetTickCount() * 0.01), finishPos.z);
+			}
+
 
 
 			world->stepSimulation(deltatime);
@@ -501,6 +508,8 @@ int MAIN
 			//llog(playerPos.x(), playerPos.y(), playerPos.z());
 
 			if (playerPos.y() < -10) { closeLevel(); }
+			if (playerPos.distance({exitPosition.x, exitPosition.y, exitPosition.z}) < 2){closeLevel();}
+
 
 			camera.playerPosition = { playerPos.x(), playerPos.y(), playerPos.z() };
 			camera.topDownAngle = playerAngle;
@@ -535,6 +544,17 @@ int MAIN
 				gameObjectPool.clearAll();
 				gameObjectPool.lights->clear();
 				gameObjectPool.load("maps//map1.txt");
+
+				int pos = gameObjectPool.gameObjectVector.getPositionById(420);
+				if (pos != -1)
+				{
+					gameObjectPool.gameObjectVector.elements[pos].setMaterial(Material::whitePlastic());
+					exitPosition = gameObjectPool.gameObjectVector.elements[pos].getInstance(0).getPosition();
+				}
+				else
+				{
+					wlog("exit not found, id:", 420);
+				}
 			}
 			levelShouldLoad = false;
 		}else

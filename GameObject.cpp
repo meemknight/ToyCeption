@@ -354,6 +354,7 @@ void GameObject::pushElement(glm::mat4 matrix)
 void GameObject::pushElement(glm::vec3 position)
 {
 	pushElement(glm::translate(position));
+	
 }
 
 void GameObject::pushElement(glm::vec3 position, glm::vec3 rotation)
@@ -363,7 +364,6 @@ void GameObject::pushElement(glm::vec3 position, glm::vec3 rotation)
 		glm::rotate(glm::radians(rotation.y), glm::vec3(0, 1, 0)) *
 		glm::rotate(glm::radians(rotation.z), glm::vec3(0, 0, 1));
 	pushElement(objectToWorldMatrix);
-	
 		
 }
 
@@ -373,6 +373,9 @@ void GameObject::pushElement(glm::vec3 position, glm::vec3 rotation, float scale
 		glm::rotate(glm::radians(rotation.y), glm::vec3(0, 1, 0)) *
 		glm::rotate(glm::radians(rotation.z), glm::vec3(0, 0, 1)), {scale, scale, scale});
 	pushElement(objectToWorldMatrix);
+	instances[instances.size() - 1].setPosition(position.x, position.y, position.z);
+	instances[instances.size() - 1].setScale(scale);
+	instances[instances.size() - 1].setRotation(rotation.x, rotation.y, rotation.z);
 }
 
 void GameObject::deleteElement(int index)
@@ -898,6 +901,7 @@ void PhisicalObject::setElementPosition(int index, glm::vec3 position)
 	t = rigidBodies[index]->getWorldTransform();
 	t.setOrigin({ position.x, position.y, position.z });
 	rigidBodies[index]->setWorldTransform(t);
+	rigidBodies[index]->activate(true);
 }
 
 bool PhisicalObject::colidesWith(int thisIndex, PhisicalObject with, int secondIndex)
