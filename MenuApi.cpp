@@ -106,15 +106,11 @@ namespace ma
 			updateBackgrounsPosition();
 		}
 
-
 		if (background.getTexture() != nullptr)
 		{
 			background.setPosition(backgroundPositionx, backgroundPositiony);
 			window->draw(background);
 		}
-
-
-
 
 		int input = -1;
 		int secondary = 0;

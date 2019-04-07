@@ -59,7 +59,6 @@ float distanceDim(float dist, float strength)
 	return brightness;
 }
 
-
 vec3 phongModel(vec3 normal, const in Light light)
 {
 	float dist = abs(distance(worldspace, light.position.xyz));
@@ -75,10 +74,10 @@ vec3 phongModel(vec3 normal, const in Light light)
 		}
 
 		float cosDif = max(0.f, dot(lightVectorWorld, normal));
-	float diffusedBrightness = cosDif;
-	//const int levels = 4;
-	//const float scaleFactor = 1.0f /levels;
-	//float diffusedBrightness = floor(cosDif * levels) * scaleFactor;
+	//float diffusedBrightness = cosDif;
+	const int levels = 4;
+	const float scaleFactor = 1.0f /levels;
+	float diffusedBrightness = floor(cosDif * levels) * scaleFactor;
 	float specularBrightness;
 
 	
@@ -100,13 +99,13 @@ vec3 phongModel(vec3 normal, const in Light light)
 	vec3 ASD;
 
 	 float edgeDetection = (dot(eyeVector, normal) > 0.1) ? 1 : 0;
-	 edgeDetection = 1;
+	 //edgeDetection = 1;
 	 vec3 diff = diffusedBrightness * u_material.kd.rgb	* light.diffuse * edgeDetection * distanceDimFactor;
 	 vec3 spec = specularBrightness * u_material.ks.rgb	* light.specular *			      distanceDimFactor;
 	 vec3 ambb =		1			* u_material.ka.rgb	* light.ambient * edgeDetection * distanceDimFactor;
 
 	 //unblend(diff, 7);
-	 //unblend(spec, 4);
+	 unblend(spec, 4);
 
 	ASD.rgb = vec3(diff) +
 			  vec3(spec) + 
@@ -123,7 +122,7 @@ subroutine (textreType)
 vec3 p_withT(vec2 coordonates)
 {
 	vec3 c = texture2D(u_sampl, coordonates).rgb;
-	//unblend(c,7);
+	unblend(c,7);
 	return c;
 }
 
@@ -144,7 +143,7 @@ void main()
 	vec3 c = vec3(0, 0, 0);
 
 	//if(!gl_FrontFacing){inNormal *=-1;}
-	inNormal *= (1 - (int(!gl_FrontFacing)*2));
+	inNormal.rgb *= (1 - (int(!gl_FrontFacing)*2));
 
 	Light l;
 
@@ -167,8 +166,6 @@ void main()
 	//c.rgb = pow(c.rgb, vec3(1.0/gamma));
 	//unblend(c.rgb, 5);
 	
-	
 	outColor = vec4(c.rgb * u_tProgram(v_texture), 0);	
-	
 		
 }

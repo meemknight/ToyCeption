@@ -35,8 +35,8 @@ void ShaderProgram::compileProgram()
 		char *p = new char[info];
 
 		glGetProgramInfoLog(id, info, 0, p);
-		std::cout << "Error compiling Shader: ";
-		std::cout << p << "\n";
+		elog("Error compiling Shader: ");
+		elog(p);
 		delete[] p;
 	}
 

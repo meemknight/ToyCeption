@@ -38,7 +38,7 @@
 extern "C"
 {
 	//Enable dedicated graphics
-	//__declspec(dllexport) DWORD NvOptimusEnablement = true;
+	__declspec(dllexport) DWORD NvOptimusEnablement = true;
 	//__declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = true;
 }
 
@@ -59,7 +59,7 @@ extern bool debugDraw;
 extern bool showFramerate;
 
 glm::vec3 exitPosition = { 0,0,0 };
-
+glm::vec3 pickupPosition = { 0,0,0 };
 sf::Music mainMusic;
 
 int MAIN
@@ -156,6 +156,7 @@ int MAIN
 	//ShaderProgram program(VertexShader("vertex.vert"), FragmentShader("fragment.frag"));
 	ShaderProgram normalProgram(VertexShader("vertn.vert"), FragmentShader("fragn.frag"));
 	ShaderProgram textureProgram(VertexShader("vertt.vert"), FragmentShader("fragt.frag"));
+	ShaderProgram textureProgramEffect(VertexShader("vertt.vert"), FragmentShader("fragtEffect.frag"));
 	ShaderProgram debugShader(VertexShader("debugShader.vert"), FragmentShader("debugShader.frag"));
 
 	customBulletdebuggClass debugDrawer(&debugShader, &camera);
@@ -471,12 +472,17 @@ int MAIN
 #pragma endregion
 			//hover exit
 			{
+				float c = cos(GetTickCount() * 0.002) * 1.5f;
 				int pos = gameObjectPool.gameObjectVector.getPositionById(420);
 				if (pos != -1)
 				{
-					gameObjectPool.gameObjectVector.elements[pos].getInstance(0).setPosition(exitPosition.x, exitPosition.y + cos(GetTickCount() * 0.002) * 1.5f, exitPosition.z);
+					gameObjectPool.gameObjectVector.elements[pos].getInstance(0).setPosition(exitPosition.x, exitPosition.y + c, exitPosition.z);
 				}
-
+				pos = gameObjectPool.gameObjectVector.getPositionById(421);
+				if (pos != -1)
+				{
+					gameObjectPool.gameObjectVector.elements[pos].getInstance(0).setPosition(pickupPosition.x, pickupPosition.y + c, pickupPosition.z);
+				}
 			}
 
 
@@ -529,10 +535,17 @@ int MAIN
 		}
 
 		window.pushGLStates();
-		for(int i=0; i<2; i++)
+		//glDisable(GL_DEPTH_TEST);
+		//glBindBuffer(GL_ARRAY_BUFFER, 0);
+		//glBindVertexArray(0);
+		//glBindTexture(GL_TEXTURE_2D, 0);
+		//glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+		//glUseProgram(0);
+		for(int i=0; i<14; i++)
 		{
 			glDisableVertexAttribArray(i);
 		}
+		//window.resetGLStates();
 		//sfml drawing
 		if (gameState == States::mainMenu)
 		{
@@ -553,7 +566,17 @@ int MAIN
 				}
 				else
 				{
-					wlog("exit not found, id:", 420);
+					wlog("exit not found, id:", 421);
+				}
+				pos = gameObjectPool.gameObjectVector.getPositionById(421);
+				if (pos != -1)
+				{
+					gameObjectPool.gameObjectVector.elements[pos].setMaterial(Material::ruby());
+					pickupPosition = gameObjectPool.gameObjectVector.elements[pos].getInstance(0).getPosition();
+				}
+				else
+				{
+					wlog("pickup not found, id:", 421);
 				}
 			}
 			levelShouldLoad = false;
