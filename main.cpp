@@ -38,7 +38,7 @@
 extern "C"
 {
 	//Enable dedicated graphics
-	__declspec(dllexport) DWORD NvOptimusEnablement = true;
+	//__declspec(dllexport) DWORD NvOptimusEnablement = true;
 	//__declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = true;
 }
 
@@ -58,8 +58,10 @@ extern bool levelShouldLoad;
 extern bool debugDraw;
 extern bool showFramerate;
 
+
 glm::vec3 exitPosition = { 0,0,0 };
 glm::vec3 pickupPosition = { 0,0,0 };
+bool pickupped = false;
 sf::Music mainMusic;
 
 int MAIN
@@ -79,18 +81,6 @@ int MAIN
 	world = new btDiscreteDynamicsWorld(dispatcher, broadPhase, solver, collisionConfiguration);
 	world->setGravity({ 0, -9.81f, 0 });
 
-	/*//plan
-	btTransform t;
-	t.setIdentity();
-	t.setOrigin({ 0, -1, 0 });
-
-	btStaticPlaneShape *plane = new btStaticPlaneShape({ 0,1,0 }, 0);
-	btMotionState *motion = new btDefaultMotionState(t);
-	btRigidBody::btRigidBodyConstructionInfo info(0.0f, motion, plane);
-	btRigidBody body(info);
-	
-	world->addRigidBody(&body);
-	*/
 #pragma endregion
 
 	sf::ContextSettings contextSettings;
@@ -167,29 +157,10 @@ int MAIN
 	gameObjectPool.initialize(&textureProgram, &camera, &light, world, &textureManager, &modelManager);
 	
 
-	float *planVertexes = 0;
-	float *planVertexes2 = 0;
-
-	unsigned int *planIndices = 0;
-	unsigned int *planIndices2 = 0;
-
-	int plansize = 0;
-	int plansize2 = 0;
-	int planIndicessize = 0;
-	int planIndicessize2 = 0;
-
-
-	shapeGenerator::generatePlane(&planVertexes, &planIndices, 512, plansize, planIndicessize);
-	llog(glGetString(GL_VERSION));
+	ilog(glGetString(GL_VERSION));
 
 
 	glClearColor(0.08, 0.08, 0.1, 1.0);
-
-	GameObject plan(vertexBuffer(planVertexes, plansize * 4), indexBuffer(planIndices, planIndicessize * 4), vertexAttribute({ 3,3,3 }), &normalProgram, &camera);
-	plan.pushElement(glm::mat4(0));
-	plan.getInstance(0).setPosition(0, -1, 0);
-	plan.getInstance(0).setRotation(0, 0, 0);
-	plan.setMaterial(Material::greyMaterial(1, 0.5f, 0.01f, 1));
 
 	sf::Clock c;
 	sf::Clock fpsClock;
@@ -485,8 +456,6 @@ int MAIN
 				}
 			}
 
-
-
 			world->stepSimulation(deltatime);
 
 			///remove objects
@@ -514,7 +483,18 @@ int MAIN
 			//llog(playerPos.x(), playerPos.y(), playerPos.z());
 
 			if (playerPos.y() < -10) { closeLevel(); }
-			if (playerPos.distance({exitPosition.x, exitPosition.y, exitPosition.z}) < 2){closeLevel();}
+			if (playerPos.distance({exitPosition.x, exitPosition.y, exitPosition.z }) < 2) { closeLevel(); }
+			if (pickupped == false && playerPos.distance({ pickupPosition.x, pickupPosition.y, pickupPosition.z }) < 2) 
+			{
+				gameObjectPool.setShaderProgramToAllComponents(&textureProgramEffect);
+				playerObject.sp = &textureProgramEffect;
+				pickupped = true; 
+				int pos = gameObjectPool.gameObjectVector.getPositionById(421);
+				if (pos != -1)
+				{
+					gameObjectPool.gameObjectVector.RemoveElement(pos);
+				}
+			}
 
 
 			camera.playerPosition = { playerPos.x(), playerPos.y(), playerPos.z() };
@@ -527,7 +507,7 @@ int MAIN
 			{
 				world->debugDrawWorld();
 			}
-			//plan.draw();
+			
 			break;
 		}
 		default:
@@ -563,9 +543,11 @@ int MAIN
 				{
 					gameObjectPool.gameObjectVector.elements[pos].setMaterial(Material::whitePlastic());
 					exitPosition = gameObjectPool.gameObjectVector.elements[pos].getInstance(0).getPosition();
+					pickupped = false;
 				}
 				else
 				{
+					pickupped = true;
 					wlog("exit not found, id:", 421);
 				}
 				pos = gameObjectPool.gameObjectVector.getPositionById(421);

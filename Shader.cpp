@@ -13,7 +13,7 @@ ShaderProgram::ShaderProgram()
 
 }
 
-ShaderProgram::ShaderProgram(const VertexShader & vs,const FragmentShader & fs) :
+ShaderProgram::ShaderProgram(const VertexShader & vs, const FragmentShader & fs) :
 	vs(vs), fs(fs)
 {
 	compileProgram();
@@ -35,14 +35,13 @@ void ShaderProgram::compileProgram()
 		char *p = new char[info];
 
 		glGetProgramInfoLog(id, info, 0, p);
-		elog("Error compiling Shader: ");
-		elog(p);
+		elog("Error compiling Shader:", p);
 		delete[] p;
 	}
 
 	glValidateProgram(id);
 
-	
+
 
 }
 
@@ -67,21 +66,20 @@ void ShaderProgram::deleteProgram()
 
 int ShaderProgram::getUniformLocation(const char* name)
 {
-	if(locations.find(name) == locations.end())
+	if (locations.find(name) == locations.end())
 	{
 		int a = glGetUniformLocation(id, name);
 
-	#ifdef DEBUG
-		if(a==-1)
+		if (a == -1)
 		{
 			elog("Uniform error: ", name);
 		}
-	#endif // DEBUG
-				
+
 		//llog("Loaded Uniform: ", name);
 		locations[name] = a;
 		return a;
-	}else
+	}
+	else
 	{
 		return locations[name];
 	}
@@ -94,12 +92,10 @@ unsigned int ShaderProgram::getSoubRutineLocation(const char * name)
 	{
 		unsigned int a = glGetSubroutineIndex(id, GL_FRAGMENT_SHADER, name);
 
-#ifdef DEBUG
 		if (a == GL_INVALID_INDEX)
 		{
 			llog("Uniform subroutine error: ", name);
 		}
-#endif // DEBUG
 
 		subRoutines[name] = a;
 		return a;

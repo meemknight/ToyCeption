@@ -46,7 +46,6 @@ struct generalObjectData
 	float mass = 0;
 	int id = 0;
 	bool unique = 0;
-	bool directionalLight = 0;
 };
 
 std::vector<generalObjectData> loadMapData(const char *f);
@@ -88,22 +87,23 @@ struct KeyPair
 		T temp = std::forward<T>(elements[index]);
 
 		elements.erase(elements.begin() + index);
+		key.erase(key.begin() + index);
 
 		return std::forward<T>(temp);
 	}
 
-	///returns -1 if fails
 	int getPositionById(int id)
 	{
 		auto i = std::find(key.begin(), key.end(), id);
-		
-		if(i == key.end())
+
+		if (i == key.end())
 		{
 			return -1;
-		}else
+		}
+		else
 		{
 			return (i - key.begin());
-		}		
+		}
 	}
 
 	T &getElementById(int id)
@@ -142,6 +142,8 @@ public:
 		this->sp = sp; this->camera = camera;	this->lights = lights; this->world = world;
 		this->textureManager = textureManager; this->modelManager = modelManager;
 	}
+
+	void setShaderProgramToAllComponents(ShaderProgram *sp);
 
 	void clearLightContextContent();
 	void load(const char *file);

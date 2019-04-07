@@ -6,6 +6,23 @@
 
 #include "GameObjectPool.h"
 
+void GameObjectPool::setShaderProgramToAllComponents(ShaderProgram * sp)
+{
+	this->sp = sp;
+	for (auto &i : gameObjectVector.elements)
+	{
+		i.sp = sp;
+	}
+	for (auto &i : complexObjectVector.elements)
+	{
+		i.sp = sp;
+	}
+	for (auto &i : phisicalObjectVector.elements)
+	{
+		i.sp = sp;
+	}
+}
+
 void GameObjectPool::clearLightContextContent()
 {
 	if(lights != nullptr)

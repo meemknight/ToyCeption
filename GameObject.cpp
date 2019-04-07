@@ -349,6 +349,18 @@ void GameObject::pushElement(glm::mat4 matrix)
 {
 	instances.push_back(ObjectPosition(matrix));
 	dataTodraw.recreateData(0, sizeof(glm::mat4)*instances.size() * 2);
+
+	glm::vec3 position = { 0,0,0 };
+	float scale = 1;
+
+	position.x = matrix[3][0];
+	position.y = matrix[3][1];
+	position.z = matrix[3][2];
+
+	scale = matrix[0][0];
+
+	instances[instances.size() - 1].setPosition(position.x, position.y, position.z);
+	instances[instances.size() - 1].setScale(scale);
 }
 
 void GameObject::pushElement(glm::vec3 position)
@@ -364,7 +376,7 @@ void GameObject::pushElement(glm::vec3 position, glm::vec3 rotation)
 		glm::rotate(glm::radians(rotation.y), glm::vec3(0, 1, 0)) *
 		glm::rotate(glm::radians(rotation.z), glm::vec3(0, 0, 1));
 	pushElement(objectToWorldMatrix);
-		
+	instances[instances.size() - 1].setRotation(rotation.x, rotation.y, rotation.z);
 }
 
 void GameObject::pushElement(glm::vec3 position, glm::vec3 rotation, float scale)
@@ -373,8 +385,6 @@ void GameObject::pushElement(glm::vec3 position, glm::vec3 rotation, float scale
 		glm::rotate(glm::radians(rotation.y), glm::vec3(0, 1, 0)) *
 		glm::rotate(glm::radians(rotation.z), glm::vec3(0, 0, 1)), {scale, scale, scale});
 	pushElement(objectToWorldMatrix);
-	instances[instances.size() - 1].setPosition(position.x, position.y, position.z);
-	instances[instances.size() - 1].setScale(scale);
 	instances[instances.size() - 1].setRotation(rotation.x, rotation.y, rotation.z);
 }
 
@@ -513,6 +523,18 @@ void ComplexObject::pushElement(glm::mat4 matrix)
 {
 	instances.push_back(ObjectPosition(matrix));
 	dataTodraw.recreateData(0, sizeof(glm::mat4)*instances.size() * 2);
+
+	glm::vec3 position = { 0,0,0 };
+	float scale = 1;
+
+	position.x = matrix[3][0];
+	position.y = matrix[3][1];
+	position.z = matrix[3][2];
+
+	scale = matrix[0][0];
+
+	instances[instances.size() - 1].setPosition(position.x, position.y, position.z);
+	instances[instances.size() - 1].setScale(scale);
 }
 
 void ComplexObject::pushElement(glm::vec3 position)
@@ -527,7 +549,7 @@ void ComplexObject::pushElement(glm::vec3 position, glm::vec3 rotation)
 		glm::rotate(glm::radians(rotation.y), glm::vec3(0, 1, 0)) *
 		glm::rotate(glm::radians(rotation.z), glm::vec3(0, 0, 1));
 	pushElement(objectToWorldMatrix);
-
+	instances[instances.size() - 1].setRotation(rotation.x, rotation.y, rotation.z);
 }
 
 void ComplexObject::pushElement(glm::vec3 position, glm::vec3 rotation, float scale)
@@ -536,6 +558,7 @@ void ComplexObject::pushElement(glm::vec3 position, glm::vec3 rotation, float sc
 		glm::rotate(glm::radians(rotation.y), glm::vec3(0, 1, 0)) *
 		glm::rotate(glm::radians(rotation.z), glm::vec3(0, 0, 1)), { scale, scale, scale });
 	pushElement(objectToWorldMatrix);
+	instances[instances.size() - 1].setRotation(rotation.x, rotation.y, rotation.z);
 }
 
 void ComplexObject::deleteElement(int index)

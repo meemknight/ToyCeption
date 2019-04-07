@@ -23,11 +23,6 @@ public:
 		size_t size;
 		FILE *input;
 		input = fopen(name, "rb");
-		if(input == nullptr)
-		{
-			elog("error openning the shader file: ", name);
-		}
-
 
 		fseek(input, 0, SEEK_END);
 		size = ftell(input);
@@ -53,15 +48,15 @@ public:
 			glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
 			message = new char[length];
 			glGetShaderInfoLog(id, length, &length, message);
-			std::cout << message << std::endl;
+			elog(message);
 			delete[] message;
 		}
 
 		delete[] data;
-		fclose(input);
+
 	}
-	
-//	static using shaderType = shaderType;
+
+	//	static using shaderType = shaderType;
 
 	void deleteShader();
 
@@ -70,12 +65,12 @@ public:
 	friend ShaderProgram;
 };
 
-using VertexShader = Shader<GL_VERTEX_SHADER>; 
+using VertexShader = Shader<GL_VERTEX_SHADER>;
 using FragmentShader = Shader<GL_FRAGMENT_SHADER>;
 
 struct cmp_str //for compairing the strings literals
 {
-	bool operator()(const char *a,const char *b)const
+	bool operator()(const char *a, const char *b)const
 	{
 		return std::strcmp(a, b) < 0;
 	}
@@ -90,15 +85,15 @@ class ShaderProgram
 public:
 
 	ShaderProgram();
-	ShaderProgram(const VertexShader &vs,const FragmentShader &fs);
-	
+	ShaderProgram(const VertexShader &vs, const FragmentShader &fs);
+
 	unsigned int id = 0;
 
-	
+
 	void bind();
 	void unBind();
 	void deleteProgram();
-	
+
 	int getUniformLocation(const char* name);
 
 	unsigned int getSoubRutineLocation(const char* name);
