@@ -4,6 +4,7 @@
 void initializeMenu(sf::RenderWindow *window);
 void loadLevel();
 void closeLevel();
+void setupCamera();
 
 enum class States
 {
@@ -11,4 +12,5 @@ enum class States
 	mainMenu,
 	inGame,
 	inGameMenu,
+	extras,
 };

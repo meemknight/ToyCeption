@@ -32,6 +32,6 @@ public:
 	void cleanup();
 
 	unsigned int id;
-	size_t size;
+	//size_t size;
 };
 

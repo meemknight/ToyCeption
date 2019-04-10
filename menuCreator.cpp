@@ -134,7 +134,7 @@ void initializeMenu(sf::RenderWindow *window)
 	auto howToPlay = new ma::MenuHolder(&mainMenu);
 	howToPlay->appendElement(new ma::TextButton(&textAreaT, font, nullptr, "In this game you play as a toy.\nAll you have to do is to get\nto the other side of the level.\nUse (WASD) or the arrows\nto move and feel free to interract\nwith any object that might help\nyou. Skins in this game also\nhave a visual effect.\nCollect them and use the\nvisual effects at the etras section.", 24));
 
-	auto extrasButton = new ma::TextButton(&bigBrickT, font, nullptr, "Extras", 50);
+	auto extrasButton = new ma::TextButton(&bigBrickT, font, new ma::Function([] {gameState = States::extras; }), "Extras", 50);
 	extrasButton->s.setColor(sf::Color::Blue);
 
 	mainHolder.appendElement(new ma::TextButton(&bigTextHolderT, font, nullptr, "ToyCeption", 50));

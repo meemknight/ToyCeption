@@ -7,7 +7,7 @@
 
 
 
-vertexBuffer::vertexBuffer(float *data, size_t size) :size(size)
+vertexBuffer::vertexBuffer(float *data, size_t size) //:size(size)
 {
 	createData(data, size);
 }

@@ -34,6 +34,8 @@
 
 #include "tools.h"
 #include "declarations.h"
+#include "escapi.h"
+#include "Drawer2D.h"
 
 extern "C"
 {
@@ -64,6 +66,46 @@ glm::vec3 pickupPosition = { 0,0,0 };
 bool pickupped = false;
 sf::Music mainMusic;
 
+Drawer2D drawer2D;
+SimpleCapParams capture;
+int nCameras = 0;
+
+void setupCamera()
+{
+	gameState = States::extras;
+
+	if(drawer2D.initialised)
+	{
+		drawer2D.Cleanup();
+	}
+
+	drawer2D.initialize(width, height);
+	
+	nCameras = setupESCAPI();
+	if(nCameras == 0)
+	{
+		elog("no camera detedted");
+	}
+
+	capture.mHeight = drawer2D.height;
+	capture.mWidth = drawer2D.width;
+	capture.mTargetBuf = new int[drawer2D.height*drawer2D.width];
+
+	if (initCapture(0, &capture) == 0)
+	{
+		elog("couldn't load camera drivers");
+	}
+
+}
+
+void closeCamera()
+{
+	drawer2D.Cleanup();
+	delete[] capture.mTargetBuf;
+	deinitCapture(0);
+}
+
+
 int MAIN
 {
 #pragma region phisicalWorld
@@ -82,6 +124,7 @@ int MAIN
 	world->setGravity({ 0, -9.81f, 0 });
 
 #pragma endregion
+
 
 	sf::ContextSettings contextSettings;
 	contextSettings.depthBits = 24;
@@ -122,9 +165,9 @@ int MAIN
 	AssetManager<LoadedIndexModel> modelManager;
 	LightContext light;
 
-	Camera camera(85.f, &width, &height, 0.01f, 1500.f);
+	Camera camera(85.f, &width, &height, 0.1f, 1000.f);
 	camera.mSpeed = 16.0f;
-
+	
 	camera.position = { 0, 3, -4 };
 	//camera.viewDirection = { 0, 0, 1 };
 	///
@@ -144,10 +187,11 @@ int MAIN
 	characterController.mouseScroll = &camera.distanceFromPlayer;
 
 	//ShaderProgram program(VertexShader("vertex.vert"), FragmentShader("fragment.frag"));
-	ShaderProgram normalProgram(VertexShader("vertn.vert"), FragmentShader("fragn.frag"));
+	//ShaderProgram normalProgram(VertexShader("vertn.vert"), FragmentShader("fragn.frag"));
 	ShaderProgram textureProgram(VertexShader("vertt.vert"), FragmentShader("fragt.frag"));
 	ShaderProgram textureProgramEffect(VertexShader("vertt.vert"), FragmentShader("fragtEffect.frag"));
 	ShaderProgram debugShader(VertexShader("debugShader.vert"), FragmentShader("debugShader.frag"));
+	ShaderProgram cameraShader(VertexShader("camera.vert"), FragmentShader("camera.frag"));
 
 	customBulletdebuggClass debugDrawer(&debugShader, &camera);
 
@@ -233,6 +277,11 @@ int MAIN
 				width = window.getSize().x;
 				height = window.getSize().y;
 
+				if(gameState == States::extras)
+				{
+					setupCamera();
+				}
+
 			}
 			else
 			if (event.type == sf::Event::MouseLeft)
@@ -309,7 +358,7 @@ int MAIN
 			float maxSpeed = 35000 * deltatime;
 			float jumpImpulse = 7.5;
 
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W))
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::W) || sf::Keyboard::isKeyPressed(sf::Keyboard::Up))
 			{
 				camera.moveFront(deltatime);
 
@@ -318,7 +367,7 @@ int MAIN
 				playerObject.getInstance(0)->activate(1);
 			}
 
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::S))
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::S) || sf::Keyboard::isKeyPressed(sf::Keyboard::Down))
 			{
 				camera.moveBack(deltatime);
 
@@ -327,7 +376,7 @@ int MAIN
 				playerObject.getInstance(0)->activate(1);
 			}
 
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A))
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::A) || sf::Keyboard::isKeyPressed(sf::Keyboard::Left))
 			{
 				camera.moveLeft(deltatime);
 
@@ -336,7 +385,7 @@ int MAIN
 				playerObject.getInstance(0)->activate(1);
 			}
 
-			if (sf::Keyboard::isKeyPressed(sf::Keyboard::D))
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::D) || sf::Keyboard::isKeyPressed(sf::Keyboard::Right))
 			{
 				camera.moveRight(deltatime);
 
@@ -494,6 +543,7 @@ int MAIN
 				{
 					gameObjectPool.gameObjectVector.RemoveElement(pos);
 				}
+				playerObject.objectData[0].material = Material::cyanPlastic();
 			}
 
 
@@ -510,6 +560,27 @@ int MAIN
 			
 			break;
 		}
+		case States::extras:
+
+			if (!drawer2D.initialised)
+			{
+				setupCamera();
+			}
+
+			doCapture(0); while (isCaptureDone(0)) {};
+			memcpy(drawer2D.buffer, capture.mTargetBuf, drawer2D.height*drawer2D.width * sizeof(int));
+			cameraShader.bind();
+			drawer2D.Render();
+
+			if(escapeReleased)
+			{
+				closeCamera();
+				gameState = States::mainMenu; 
+				escapeReleased = false;
+			}
+
+
+			break;
 		default:
 			break;
 		}
@@ -553,7 +624,7 @@ int MAIN
 				pos = gameObjectPool.gameObjectVector.getPositionById(421);
 				if (pos != -1)
 				{
-					gameObjectPool.gameObjectVector.elements[pos].setMaterial(Material::ruby());
+					gameObjectPool.gameObjectVector.elements[pos].setMaterial(Material::cyanPlastic());
 					pickupPosition = gameObjectPool.gameObjectVector.elements[pos].getInstance(0).getPosition();
 				}
 				else
@@ -601,5 +672,4 @@ int MAIN
 	*/
 	return 0;
 }
-
 
