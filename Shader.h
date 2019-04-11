@@ -55,6 +55,7 @@ public:
 			glGetShaderiv(id, GL_INFO_LOG_LENGTH, &length);
 			message = new char[length];
 			glGetShaderInfoLog(id, length, &length, message);
+			elog("Error compiling shader:", name);
 			elog(message);
 			delete[] message;
 		}

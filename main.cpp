@@ -160,6 +160,7 @@ int MAIN
 
 	glEnable(GL_CULL_FACE);
 
+	ilog(glGetString(GL_VERSION));
 
 	AssetManager<Texture> textureManager;
 	AssetManager<LoadedIndexModel> modelManager;
@@ -199,12 +200,9 @@ int MAIN
 	world->getDebugDrawer()->setDebugMode(btIDebugDraw::DebugDrawModes::DBG_DrawWireframe);
 
 	gameObjectPool.initialize(&textureProgram, &camera, &light, world, &textureManager, &modelManager);
-	
-
-	ilog(glGetString(GL_VERSION));
 
 
-	glClearColor(0.08, 0.08, 0.1, 1.0);
+	glClearColor(0.082, 0.082, 0.12, 1.0);
 
 	sf::Clock c;
 	sf::Clock fpsClock;
@@ -585,68 +583,76 @@ int MAIN
 			break;
 		}
 
-		window.pushGLStates();
-		//glDisable(GL_DEPTH_TEST);
-		//glBindBuffer(GL_ARRAY_BUFFER, 0);
-		//glBindVertexArray(0);
-		//glBindTexture(GL_TEXTURE_2D, 0);
-		//glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-		//glUseProgram(0);
-		for(int i=0; i<14; i++)
+		if(gameState == States::mainMenu || gameState == States::inGameMenu)
 		{
-			glDisableVertexAttribArray(i);
-		}
-		//window.resetGLStates();
-		//sfml drawing
-		if (gameState == States::mainMenu)
-		{
-			window.setMouseCursorVisible(1);
-			if (!mainMenu.update(mouseButtonReleased, escapeReleased)) {exit(0);}
-			
-			if(levelShouldLoad)
+			window.pushGLStates();
+			//glDisable(GL_DEPTH_TEST);
+			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glBindVertexArray(0);
+			glBindTexture(GL_TEXTURE_2D, 0);
+			glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+			glUseProgram(0);
+			for (int i = 0; i < 24; i++)
 			{
-				gameObjectPool.clearAll();
-				gameObjectPool.lights->clear();
-				gameObjectPool.load("maps//map1.txt");
-
-				int pos = gameObjectPool.gameObjectVector.getPositionById(420);
-				if (pos != -1)
-				{
-					gameObjectPool.gameObjectVector.elements[pos].setMaterial(Material::whitePlastic());
-					exitPosition = gameObjectPool.gameObjectVector.elements[pos].getInstance(0).getPosition();
-					pickupped = false;
-				}
-				else
-				{
-					pickupped = true;
-					wlog("exit not found, id:", 421);
-				}
-				pos = gameObjectPool.gameObjectVector.getPositionById(421);
-				if (pos != -1)
-				{
-					gameObjectPool.gameObjectVector.elements[pos].setMaterial(Material::cyanPlastic());
-					pickupPosition = gameObjectPool.gameObjectVector.elements[pos].getInstance(0).getPosition();
-				}
-				else
-				{
-					wlog("pickup not found, id:", 421);
-				}
+				glDisableVertexAttribArray(i);
 			}
-			levelShouldLoad = false;
+			//window.resetGLStates();
+			//sfml drawing
+			if (gameState == States::mainMenu)
+			{
+				window.setMouseCursorVisible(1);
+				if (!mainMenu.update(mouseButtonReleased, escapeReleased)) { exit(0); }
+
+				if (levelShouldLoad)
+				{
+					gameObjectPool.clearAll();
+					gameObjectPool.lights->clear();
+					gameObjectPool.load("maps//map1.txt");
+
+					int pos = gameObjectPool.gameObjectVector.getPositionById(420);
+					if (pos != -1)
+					{
+						gameObjectPool.gameObjectVector.elements[pos].setMaterial(Material::whitePlastic());
+						exitPosition = gameObjectPool.gameObjectVector.elements[pos].getInstance(0).getPosition();
+						pickupped = false;
+					}
+					else
+					{
+						pickupped = true;
+						wlog("exit not found, id:", 421);
+					}
+					pos = gameObjectPool.gameObjectVector.getPositionById(421);
+					if (pos != -1)
+					{
+						gameObjectPool.gameObjectVector.elements[pos].setMaterial(Material::cyanPlastic());
+						pickupPosition = gameObjectPool.gameObjectVector.elements[pos].getInstance(0).getPosition();
+					}
+					else
+					{
+						wlog("pickup not found, id:", 421);
+					}
+				}
+				levelShouldLoad = false;
+			}
+			else
+				if (gameState == States::inGameMenu)
+				{
+					window.setMouseCursorVisible(1);
+					if (!gameMenu.update(mouseButtonReleased, escapeReleased))
+					{
+						gameState = States::inGame;
+						escapeReleased = false;
+					}
+				}
+
+			window.setView(sf::View({ 0, 0, width, height })); //todo check if necessary
+			window.display();
+			window.popGLStates();
 		}else
-		if(gameState == States::inGameMenu)
 		{
-			window.setMouseCursorVisible(1);
-			if (!gameMenu.update(mouseButtonReleased, escapeReleased))
-			{
-				gameState = States::inGame;
-				escapeReleased = false;
-			}
+			window.display();
 		}
-
-		window.setView(sf::View({ 0, 0, width, height })); //todo check if necessary
-		window.display();
-		window.popGLStates();
+		
 	
 	}
 

@@ -41,8 +41,6 @@ void ShaderProgram::compileProgram()
 
 	glValidateProgram(id);
 
-
-
 }
 
 void ShaderProgram::bind()
@@ -72,7 +70,7 @@ int ShaderProgram::getUniformLocation(const char* name)
 
 		if (a == -1)
 		{
-			elog("Uniform error: ", name);
+			wlog("Uniform error: ", name);
 		}
 
 		//llog("Loaded Uniform: ", name);
@@ -94,7 +92,7 @@ unsigned int ShaderProgram::getSoubRutineLocation(const char * name)
 
 		if (a == GL_INVALID_INDEX)
 		{
-			llog("Uniform subroutine error: ", name);
+			wlog("Uniform subroutine error: ", name);
 		}
 
 		subRoutines[name] = a;
