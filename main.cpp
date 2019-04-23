@@ -189,7 +189,7 @@ int MAIN
 	CharacterMouseController characterController;
 	characterController.topDownRotation = &playerAngle;
 	characterController.cameraAngle = &camera.cameraAngle;
-	characterController.downMax = glm::radians(0.f);
+	characterController.downMax = glm::radians(-45.f);
 	characterController.mouseScroll = &camera.distanceFromPlayer;
 
 	//ShaderProgram program(VertexShader("vertex.vert"), FragmentShader("fragment.frag"));
@@ -592,11 +592,11 @@ int MAIN
 		{
 			window.pushGLStates();
 			//glDisable(GL_DEPTH_TEST);
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
-			glBindVertexArray(0);
-			glBindTexture(GL_TEXTURE_2D, 0);
-			glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
-			glUseProgram(0);
+			//glBindBuffer(GL_ARRAY_BUFFER, 0);
+			//glBindVertexArray(0);
+			//glBindTexture(GL_TEXTURE_2D, 0);
+			//glBindTexture(GL_TEXTURE_CUBE_MAP, 0);
+			//glUseProgram(0);
 			for (int i = 0; i < 24; i++)
 			{
 				glDisableVertexAttribArray(i);

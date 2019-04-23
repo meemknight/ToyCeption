@@ -1,1 +1,7 @@
-@phisical "objects/bloc.obj" @position 0.5, 7, 0 @collision "COLLISION" @mass 12 
+@empty @position 19, 3, -20 @id 422 /this is the player position 
+@phisical "objects/level2.obj" @position 0, 0, 0 @mass 0 @collision "" @id 440 @unique 
+@simple "objects/exit.obj" @position -16, 7, 11.5 @scale 0.5 @id 420 @unique /exit 
+@simple "objects/sphere.obj" @position 4, 7, 26.5 @scale 0.5 @id 421 @unique 
+@light @position 0, 20, 0 @diffuse 1, 1, 1 @specular 1, 1, 1 @ambience 0.3, 0.3, 0.3 @strength 0.0002 
+@phisical "objects/duck.obj" @position 6, 3.5, 9 @mass 10 @collision ""
+@light @position -16, 12, 11.5 @diffuse 0.3, 0.32, 0.9 @specular 0.5, 0.5, 1 @ambience 0.2, 0.2, 0.4 @strength 0.01 

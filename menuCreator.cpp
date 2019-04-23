@@ -144,6 +144,7 @@ void initializeMenu(sf::RenderWindow *window)
 	auto playMenu = new ma::MenuHolder(&mainMenu);
 	playMenu->appendElement(new ma::TextButton(&smallTextHolderT, font, new ma::Function(LoadLevel{ 1 }), "1", 74));
 	playMenu->appendElement(new ma::TextButton(&smallTextHolderT, font, new ma::Function(LoadLevel{ 2 }), "2", 74));
+	playMenu->appendElement(new ma::TextButton(&smallTextHolderT, font, new ma::Function(LoadLevel{ 3 }), "3", 74));
 
 
 	mainHolder.appendElement(new ma::TextButton(&bigTextHolderT, font, nullptr, "ToyCeption", 50));

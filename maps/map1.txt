@@ -46,6 +46,6 @@
 @light @position 46, 15, -46 @diffuse 1, 1, 1 @specular 0.8, 0.8, 0.8 @ambience 0.2, 0.2, 0.2 @strength 0.002 
 @light @position -35, 15, -32 @diffuse 1, 1, 1 @specular 0.8, 0.8, 0.8 @ambience 0.2, 0.2, 0.2 @strength 0.001 
 @light @position 0.5, 22, -11 @diffuse 0.3, 0.4, 1.0 @specular 0.1, 0.2, 1.0 @ambience 0.1, 0.1, 0.22 @strength 0.002 
-@simple "objects/sphere.obj" @position 1.5, 22.2, -12.5 @scale 0.5 @id 420 @unique 
+@simple "objects/exit.obj" @position 1.5, 22.2, -12.5 @scale 0.5 @id 420 @unique 
 @simple "objects/sphere.obj" @position 59.5, 8.2, 23.5 @scale 0.5 @id 421 @unique 
 @empty @position 40, 3, -40 @id 422 /this is the player position 
