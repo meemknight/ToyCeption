@@ -7,6 +7,7 @@
 #include <vector>
 #include <Windows.h>
 #include <cmath>
+#include <sstream>
 
 #include <GL/glew.h>
 
@@ -57,6 +58,7 @@ sf::RenderWindow *windowPointer = nullptr;
 extern ma::Menu mainMenu;
 extern ma::Menu gameMenu;
 extern bool levelShouldLoad;
+extern int levelToLoad;
 extern bool debugDraw;
 extern bool showFramerate;
 
@@ -72,6 +74,9 @@ int nCameras = 0;
 
 void setupCamera()
 {
+
+
+
 	gameState = States::extras;
 
 	if(drawer2D.initialised)
@@ -605,11 +610,42 @@ int MAIN
 
 				if (levelShouldLoad)
 				{
+
+					if (playerPointer == nullptr)
+					{
+						elog("pointer of the player mising");
+					}
+					int pos;
+				
+
+					playerPointer->rigidBodies[0]->setLinearVelocity({ 0, 0, 0 });
+					playerPointer->rigidBodies[0]->setAngularVelocity({ 0, 0, 0 });
+					gameState = States::inGame;
+
 					gameObjectPool.clearAll();
 					gameObjectPool.lights->clear();
-					gameObjectPool.load("maps//map1.txt");
+					std::stringstream map;
+					map << "maps//map" << levelToLoad << ".txt";
+					gameObjectPool.load(map.str().c_str());
 
-					int pos = gameObjectPool.gameObjectVector.getPositionById(420);
+					glm::vec3 playerPosition = { 0,0,0 };
+					pos = gameObjectPool.emptyObjectVector.getPositionById(422);
+					if (pos == -1)
+					{
+						elog("no position found in the map file");
+						playerPointer->setElementPosition(0, { 0, 0 , 0 });
+					}
+					else
+					{
+						playerPointer->setElementPosition(0, gameObjectPool.emptyObjectVector.elements[pos]);
+					}
+
+					playerObject.objectData[0].material = Material::greyMaterial(0.6, 0.7, 1, 40);
+
+					playerObject.sp = &textureProgram;
+					gameObjectPool.setShaderProgramToAllComponents(&textureProgram);
+
+					pos = gameObjectPool.gameObjectVector.getPositionById(420);
 					if (pos != -1)
 					{
 						gameObjectPool.gameObjectVector.elements[pos].setMaterial(Material::whitePlastic());
@@ -619,7 +655,7 @@ int MAIN
 					else
 					{
 						pickupped = true;
-						wlog("exit not found, id:", 421);
+						wlog("exit not found, id:", 420);
 					}
 					pos = gameObjectPool.gameObjectVector.getPositionById(421);
 					if (pos != -1)

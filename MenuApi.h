@@ -1,13 +1,14 @@
 //////////////////////////////////////////////////////////////////
 //MenuApi.h
 //(c) Luta Vlad - 2019
-// this library is under MIT license, do not remove this notice
+//this library is under MIT license, do not remove this notice
 //https://github.com/meemknight/MenuApi
 //////////////////////////////////////////////////////////////////
 #pragma once
 #include <SFML/Graphics.hpp>
 #include <vector>
 #include <utility>
+#include <functional>
 
 namespace ma
 {
@@ -19,6 +20,9 @@ namespace ma
 
 	struct Point
 	{
+		Point() = default;
+		Point(int x, int y) :x(x), y(y) {};
+
 		int x;
 		int y;
 	};
@@ -32,6 +36,9 @@ namespace ma
 		iconButton,
 		buttonGroup,
 		onOffButton,
+		plainText,
+		plainSprite,
+		buttonChoiceGroup,
 	};
 
 	class ButtonAccesseble
@@ -61,6 +68,103 @@ namespace ma
 		//Menu *context;
 		ButtonAccesseble *actionType = 0;
 	};
+
+	class PlainText : public MenuElement
+	{
+	protected:
+		sf::Font font;
+	public:
+		PlainText() {};
+		PlainText(sf::Font f, ButtonAccesseble* action, const char* text = nullptr, int textSize = 30, sf::Color color = sf::Color::Black)
+		{
+			actionType = action;
+
+			font = f;
+			textContent.setCharacterSize(textSize);
+			textContent.setFillColor(color);
+			textContent.setFont(font);
+			if (text)
+			{
+				textContent.setString(text);
+			}
+		}
+
+		sf::Text textContent;
+
+		virtual void draw(sf::RenderWindow *window) override;
+		virtual int getType() override { return type::plainText; }
+		virtual Point getSize() override;
+		virtual void setPositionX(int x) override;
+		virtual void setPositionY(int y) override;
+		virtual int getPositionX() override;
+		virtual int getPositionY() override;
+	};
+
+	class PlainSprite : public MenuElement
+	{
+	protected:
+		sf::Font font;
+	public:
+		PlainSprite() {};
+		PlainSprite(sf::Texture *t, ButtonAccesseble* action)
+		{
+			actionType = action;
+
+			if (t != nullptr)
+			{
+				s.setTexture(*t);
+			}
+
+		}
+
+		sf::Sprite s;
+
+		virtual void draw(sf::RenderWindow *window) override;
+		virtual int getType() override { return type::plainSprite; }
+		virtual Point getSize() override;
+		virtual void setPositionX(int x) override;
+		virtual void setPositionY(int y) override;
+		virtual int getPositionX() override;
+		virtual int getPositionY() override;
+	};
+
+
+	///bref this class holds some buttons and the user cand choose one
+	class ButtonChoiceGroup : public MenuElement
+	{
+	protected:
+
+		//the second element from the pair is just an offset from the first one
+		std::vector<std::pair<MenuElement*, int>> buttons;
+	public:
+
+		///this is -1 if nothing is chosen.
+		int *index = nullptr;
+
+		ButtonChoiceGroup() {};
+		ButtonChoiceGroup(Menu *menu) :menu(menu) {};
+
+		///this two should have the same size but it still works
+		sf::Sprite chosenBackground;
+		sf::Sprite notChosenBackground;
+
+		void appendElement(MenuElement *element);
+		void updateElementsPosition();
+
+		Menu *menu;
+
+		virtual void draw(sf::RenderWindow *window) override;
+		virtual int getType() override { return type::buttonChoiceGroup; }
+		virtual Point getSize() override;
+		virtual void setPositionX(int x) override;
+		virtual void setPositionY(int y) override;
+		virtual int getPositionX() override;
+		virtual int getPositionY() override;
+		virtual int checkInput(sf::RenderWindow *window, bool mouseReleased) override;
+
+		friend Menu;
+	};
+
 
 	///bref this is the main menu class in where you will be storing your menu group.
 	///It needs to have a pointer to a MenuHolder in where you will put your buttons.
@@ -129,9 +233,9 @@ namespace ma
 	{
 	public:
 		Function() {};
-		Function(void(*functionPointer)()) :functionPointer(functionPointer) {};
+		Function(std::function<void()> functionPointer) :functionPointer(functionPointer) {};
 
-		void(*functionPointer)() = nullptr;
+		std::function<void()> functionPointer;
 
 		virtual int getType() override { return type::function; };
 		virtual void execute() override;
@@ -237,7 +341,7 @@ namespace ma
 		sf::Sprite onStateSprite;
 		sf::Sprite offStateSprite;
 
-		bool *data;
+		bool *data = nullptr;
 
 		virtual void draw(sf::RenderWindow *window) override;
 		virtual int getType() override { return type::onOffButton; }
@@ -265,7 +369,7 @@ namespace ma
 		void appendElement(MenuElement *element);
 		void updateElementsPosition();
 
-		Menu *menu;
+		Menu *menu = nullptr;
 
 		virtual void draw(sf::RenderWindow *window) override;
 		virtual int getType() override { return type::buttonGroup; }
@@ -278,5 +382,7 @@ namespace ma
 
 		friend Menu;
 	};
+
+
 
 }

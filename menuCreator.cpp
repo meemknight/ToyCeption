@@ -22,16 +22,20 @@ void closeLevel()
 }
 
 bool levelShouldLoad = false;
+int levelToLoad = 0;
+
+struct LoadLevel
+{
+	int index = 0;
+	void operator()()
+	{
+		levelShouldLoad = true;
+		levelToLoad = index;
+	}
+};
+
 void loadLevel()
 {
-	if(playerPointer == nullptr) 
-	{
-		elog("pointer of the player mising");
-	}
-	playerPointer->setElementPosition(0, { 40, 3 , -40 });
-	playerPointer->rigidBodies[0]->setLinearVelocity({ 0, 0, 0 });
-	playerPointer->rigidBodies[0]->setAngularVelocity({ 0, 0, 0 });
-	gameState = States::inGame;
 	levelShouldLoad = true;
 
 }
@@ -137,8 +141,13 @@ void initializeMenu(sf::RenderWindow *window)
 	auto extrasButton = new ma::TextButton(&bigBrickT, font, new ma::Function([] {gameState = States::extras; }), "Extras", 50);
 	extrasButton->s.setColor(sf::Color::Blue);
 
+	auto playMenu = new ma::MenuHolder(&mainMenu);
+	playMenu->appendElement(new ma::TextButton(&smallTextHolderT, font, new ma::Function(LoadLevel{ 1 }), "1", 74));
+	playMenu->appendElement(new ma::TextButton(&smallTextHolderT, font, new ma::Function(LoadLevel{ 2 }), "2", 74));
+
+
 	mainHolder.appendElement(new ma::TextButton(&bigTextHolderT, font, nullptr, "ToyCeption", 50));
-	auto playButton = new ma::TextButton(&bigBrickT, font, new ma::Function(&loadLevel), "Play", 50);
+	auto playButton = new ma::TextButton(&bigBrickT, font, playMenu, "Play", 50);
 	auto settingsButton = new ma::TextButton(&bigBrickT, font, settings, "Settings", 50);
 	auto infoButton = new ma::TextButton(&bigBrickT, font, howToPlay, "Info", 50);
 

@@ -8,6 +8,7 @@
 #include <algorithm>
 #include "GameObject.h"
 #include "AssetManager.h"
+#include <unordered_map>
 
 enum Commands
 {
@@ -28,6 +29,7 @@ enum Commands
 	mass,
 	collision,
 	unique,
+	empty,
 };
 
 struct generalObjectData
@@ -115,9 +117,9 @@ struct KeyPair
 	{
 		elements.clear();
 		key.clear();
+		currentKeyCount = 0;
 	}
 };
-
 
 
 class GameObjectPool
@@ -131,6 +133,7 @@ public:
 	KeyPair<GameObject> gameObjectVector;
 	KeyPair<ComplexObject> complexObjectVector;
 	KeyPair<PhisicalObject> phisicalObjectVector;
+	KeyPair<glm::vec3> emptyObjectVector;
 
 	ShaderProgram *sp = nullptr;
 	Camera *camera = nullptr;
@@ -151,4 +154,3 @@ public:
 	void clearAll();
 
 };
-

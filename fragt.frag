@@ -59,7 +59,6 @@ float distanceDim(float dist, float strength)
 	return brightness;
 }
 
-
 vec3 phongModel(vec3 normal, const in Light light)
 {
 	float dist = abs(distance(worldspace, light.position.xyz));
@@ -96,7 +95,6 @@ vec3 phongModel(vec3 normal, const in Light light)
 	specularBrightness = pow(specularBrightness, u_material.shiny);
 	//
 
-
 	vec3 ASD;
 
 	 float edgeDetection = (dot(eyeVector, normal) > 0.1) ? 1 : 0;
@@ -113,7 +111,7 @@ vec3 phongModel(vec3 normal, const in Light light)
 			  vec3(ambb);
 
 
-	return vec3(ASD);
+	return ASD.rgb;
 }
 
 subroutine vec3 textreType(vec2 coordonates);

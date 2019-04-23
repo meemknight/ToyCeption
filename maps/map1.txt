@@ -38,13 +38,14 @@
 @phisical "objects/soldier.obj" @position -15, 12, -29.5
 @phisical "objects/soldier.obj" @position 1.5, 12, -12
 @light @position 0, 20, 0 @diffuse 1, 1, 1 @specular 1, 1, 1 @ambience 0.3, 0.3, 0.3 @strength 0.0003
-@light @position 56, 0, 35 @diffuse 0.9, 0.3, 0.3 @specular 1.0, 0, 0 @ambience 0.5, 0.1, 0.1 @strength 0.02 
-@light @position 58, 0, 35 @diffuse 0.9, 0.3, 0.3 @specular 1.0, 0, 0 @ambience 0.5, 0.1, 0.1 @strength 0.02 
+@light @position 56, 0, 35 @diffuse 0.9, 0.3, 0.3 @specular 1.0, 0, 0 @ambience 0.5, 0.1, 0.1 @strength 0.01 
+@light @position 58, 0, 35 @diffuse 0.9, 0.3, 0.3 @specular 1.0, 0, 0 @ambience 0.5, 0.1, 0.1 @strength 0.01 
 @light @position 9.5, 5.0, 58.5 @diffuse 0.3, 0.4, 0.9 @specular 0.1, 0.2, 0.9 @ambience 0.1, 0.1, 0.2 @strength 0.1 
-@light @position 29, 10, 37 @diffuse 1, 1, 1 @specular 0.8, 0.8, 0.8 @ambience 0.1, 0.1, 0.1 @strength 0.01 
+@light @position 29, 10, 37 @diffuse 1, 1, 1 @specular 0.8, 0.8, 0.8 @ambience 0.1, 0.1, 0.1 @strength 0.006 
 @light @position -32, 15, 36 @diffuse 1, 1, 1 @specular 0.8, 0.8, 0.8 @ambience 0.2, 0.2, 0.2 @strength 0.003 
 @light @position 46, 15, -46 @diffuse 1, 1, 1 @specular 0.8, 0.8, 0.8 @ambience 0.2, 0.2, 0.2 @strength 0.002 
 @light @position -35, 15, -32 @diffuse 1, 1, 1 @specular 0.8, 0.8, 0.8 @ambience 0.2, 0.2, 0.2 @strength 0.001 
 @light @position 0.5, 22, -11 @diffuse 0.3, 0.4, 1.0 @specular 0.1, 0.2, 1.0 @ambience 0.1, 0.1, 0.22 @strength 0.002 
 @simple "objects/sphere.obj" @position 1.5, 22.2, -12.5 @scale 0.5 @id 420 @unique 
-@simple "objects/sphere.obj" @position 59.5, 8.2, 23.5 @scale 0.5 @id 421 @unique  
+@simple "objects/sphere.obj" @position 59.5, 8.2, 23.5 @scale 0.5 @id 421 @unique 
+@empty @position 40, 3, -40 @id 422 /this is the player position 

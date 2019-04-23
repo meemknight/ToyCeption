@@ -1,7 +1,7 @@
 //////////////////////////////////////////////////////////////////
 //MenuApi.cpp
 //(c) Luta Vlad - 2019
-// this library is under MIT license, do not remove this notice
+//this library is under MIT license, do not remove this notice
 //https://github.com/meemknight/MenuApi
 //////////////////////////////////////////////////////////////////
 #include "MenuApi.h"
@@ -96,6 +96,15 @@ namespace ma
 							holder = (MenuHolder*)temp->actionType;
 						}
 					}
+					else
+						if (holder->elements[stack[i].first]->getType() == type::buttonChoiceGroup)
+						{
+							auto temp = ((ButtonChoiceGroup*)holder->elements[stack[i].first])->buttons[stack[i].second].first;
+							if (temp->actionType->getType() == type::menuHolder)
+							{
+								holder = (MenuHolder*)temp->actionType;
+							}
+						}
 			}
 
 		}
@@ -106,11 +115,15 @@ namespace ma
 			updateBackgrounsPosition();
 		}
 
+
 		if (background.getTexture() != nullptr)
 		{
 			background.setPosition(backgroundPositionx, backgroundPositiony);
 			window->draw(background);
 		}
+
+
+
 
 		int input = -1;
 		int secondary = 0;
@@ -158,6 +171,8 @@ namespace ma
 			}
 
 		}
+
+
 
 		return 1;
 	}
@@ -224,7 +239,6 @@ namespace ma
 
 		textContent.setPosition(startingPos);
 		window->draw(textContent);
-
 	}
 
 	Point TextButton::getSize()
@@ -366,7 +380,7 @@ namespace ma
 
 	void ButtonGroup::draw(sf::RenderWindow * window)
 	{
-		for (auto &i : buttons) //todo ???
+		for (auto &i : buttons)
 		{
 			i.first->draw(window);
 		}
@@ -571,5 +585,268 @@ namespace ma
 		}
 	}
 
-}
 
+	void PlainText::draw(sf::RenderWindow * window)
+	{
+		window->draw(textContent);
+	}
+
+	Point PlainText::getSize()
+	{
+		return Point{ static_cast<int>(textContent.getLocalBounds().width), static_cast<int>(textContent.getLocalBounds().height) };
+	}
+
+	void PlainText::setPositionX(int x)
+	{
+		textContent.setPosition(x, textContent.getPosition().y);
+	}
+
+	void PlainText::setPositionY(int y)
+	{
+		textContent.setPosition(textContent.getPosition().x, y);
+	}
+
+	int PlainText::getPositionX()
+	{
+		return textContent.getPosition().x;
+	}
+
+	int PlainText::getPositionY()
+	{
+		return textContent.getPosition().y;
+	}
+
+	void PlainSprite::draw(sf::RenderWindow * window)
+	{
+		window->draw(s);
+	}
+
+	Point PlainSprite::getSize()
+	{
+		return Point(s.getLocalBounds().width, s.getLocalBounds().height);
+	}
+
+	void PlainSprite::setPositionX(int x)
+	{
+		s.setPosition(x, s.getPosition().y);
+	}
+
+	void PlainSprite::setPositionY(int y)
+	{
+		s.setPosition(s.getPosition().x, y);
+	}
+
+	int PlainSprite::getPositionX()
+	{
+		return s.getPosition().x;
+	}
+
+	int PlainSprite::getPositionY()
+	{
+		return s.getPosition().y;
+	}
+
+	void ButtonChoiceGroup::appendElement(MenuElement * element)
+	{
+		buttons.push_back({ element, 0 });
+		updateElementsPosition();
+	}
+
+	void ButtonChoiceGroup::updateElementsPosition()
+	{
+
+		int backGroundXsize = std::max(chosenBackground.getLocalBounds().width, notChosenBackground.getLocalBounds().width);
+
+		int spareSpace = menu->window->getSize().x;
+		for (auto &i : buttons)
+		{
+			int size = i.first->getSize().x;
+			if (size < backGroundXsize) { size = backGroundXsize; }
+			spareSpace -= size;
+
+		}
+
+		int gaps = buttons.size() - 1;
+		if (gaps <= 0) { gaps = 1; }
+		spareSpace /= gaps * 4;
+
+		buttons[0].second = spareSpace;
+		int currentPos = std::max(buttons[0].first->getSize().x, backGroundXsize) + spareSpace * 2;
+		for (int i = 1; i < buttons.size(); i++)
+		{
+			buttons[i].second = currentPos;
+			currentPos += std::max(buttons[i].first->getSize().x, backGroundXsize);
+			currentPos += spareSpace;
+		}
+
+	}
+
+	void ButtonChoiceGroup::draw(sf::RenderWindow * window)
+	{
+		int j = 0;
+		for (auto &i : buttons) //todo ???
+		{
+			int paddingX = 0;
+			int paddingY = 0;
+
+			paddingX = i.first->getSize().x;
+			paddingY = i.first->getSize().y;
+			paddingX -= std::max(chosenBackground.getLocalBounds().width, chosenBackground.getLocalBounds().width);
+			paddingY -= std::max(chosenBackground.getLocalBounds().height, chosenBackground.getLocalBounds().height);
+			paddingX /= 2;
+			paddingY /= 2;
+
+			if (index != nullptr)
+			{
+				if (*index == j)
+				{
+					chosenBackground.setPosition(i.first->getPositionX() + paddingX, i.first->getPositionY() + paddingY);
+					window->draw(chosenBackground);
+				}
+				else
+				{
+					goto no;
+				}
+
+			}
+			else
+			{
+			no:
+				notChosenBackground.setPosition(i.first->getPositionX() + paddingX, i.first->getPositionY() + paddingY);
+				window->draw(notChosenBackground);
+			}
+
+			i.first->draw(window);
+			j++;
+		}
+
+	}
+
+	Point ButtonChoiceGroup::getSize()
+	{
+		int backGroundY = static_cast<int>(std::max(chosenBackground.getLocalBounds().height, notChosenBackground.getLocalBounds().height));
+
+		Point size = { 0, backGroundY };
+		for (auto &i : buttons)
+		{
+			if (i.first->getSize().y > size.y)
+			{
+				size.y = i.first->getSize().y;
+			}
+
+		}
+
+		int spareSpace = buttons.begin()->second;
+		size.x = (buttons.end() - 1)->second + (buttons.end() - 1)->first->getSize().x + spareSpace;
+		return size;
+	}
+
+	void ButtonChoiceGroup::setPositionX(int x)
+	{
+		for (auto &i : buttons)
+		{
+			i.first->setPositionX(x + i.second);
+		}
+	}
+
+	void ButtonChoiceGroup::setPositionY(int y)
+	{
+		int size = std::max(chosenBackground.getLocalBounds().height, chosenBackground.getLocalBounds().height);
+		for (auto &i : buttons)
+		{
+			int paddingY = i.first->getSize().y;
+			paddingY -= size;
+			paddingY /= 2;
+			i.first->setPositionY(y - paddingY);
+		}
+	}
+
+	int ButtonChoiceGroup::getPositionX()
+	{
+		if (buttons.size() == 0)
+		{
+			throw;
+		}
+
+		return buttons[0].first->getPositionX();
+	}
+
+	int ButtonChoiceGroup::getPositionY()
+	{
+		if (buttons.size() == 0)
+		{
+			throw;
+		}
+
+		return buttons[0].first->getPositionY();
+	}
+
+	///this is the same function as the one in ButtonGroup
+	int ButtonChoiceGroup::checkInput(sf::RenderWindow * window, bool mouseReleased)
+	{
+		additionalFunctonality();
+
+		int valueReturned = -2;
+		if (mouseReleased)
+		{
+			for (int i = 0; i < buttons.size(); i++)
+			{
+				sf::IntRect rect(buttons[i].first->getPositionX(), buttons[i].first->getPositionY(), buttons[i].first->getSize().x, buttons[i].first->getSize().y);
+				sf::IntRect secondRect;
+				bool exists = false;
+				if (index != nullptr)
+				{
+					if (*index == i)
+					{
+						if (chosenBackground.getTexture() != nullptr)
+						{
+							secondRect = { buttons[i].first->getPositionX() - (int)chosenBackground.getLocalBounds().width / 2 + (buttons[i].first->getSize().x / 2), buttons[i].first->getPositionY() - (int)chosenBackground.getLocalBounds().height / 2 + (buttons[i].first->getSize().y / 2), (int)chosenBackground.getLocalBounds().width, (int)chosenBackground.getLocalBounds().height };
+							exists = true;
+						}
+					}
+					else
+					{
+						if (notChosenBackground.getTexture() != nullptr)
+						{
+							secondRect = { buttons[i].first->getPositionX() - (int)notChosenBackground.getLocalBounds().width / 2 + (buttons[i].first->getSize().x / 2), buttons[i].first->getPositionY() - (int)notChosenBackground.getLocalBounds().height / 2 + (buttons[i].first->getSize().y / 2), (int)notChosenBackground.getLocalBounds().width, (int)notChosenBackground.getLocalBounds().height };
+							exists = true;
+						}
+					}
+				}
+
+				if (rect.contains(sf::Mouse::getPosition(*window)) || (exists && secondRect.contains(sf::Mouse::getPosition(*window))))
+				{
+					if (index != nullptr)
+					{
+						*index = i;
+					}
+
+					buttons[i].first->additionalFunctonality();
+
+					if (buttons[i].first->actionType != nullptr)
+					{
+
+						if (buttons[i].first->actionType->getType() == type::function)
+						{
+							buttons[i].first->actionType->execute();
+							if (valueReturned < 0)
+							{
+								valueReturned = -1;
+							}
+						}
+						else if (buttons[i].first->actionType->getType() == type::menuHolder)
+						{
+							//return 1;
+							valueReturned = i;
+						}
+					}
+
+				}
+			}
+
+		}
+
+		return valueReturned;
+	}
+
+}
