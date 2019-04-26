@@ -57,11 +57,14 @@ sf::RenderWindow *windowPointer = nullptr;
 
 extern ma::Menu mainMenu;
 extern ma::Menu gameMenu;
+extern ma::Menu cameraMenu;
 extern bool levelShouldLoad;
 extern int levelToLoad;
 extern bool debugDraw;
 extern bool showFramerate;
-
+extern bool shouldExitCamera;
+extern int effectChosen;
+bool cameraMenuOn = false;
 
 glm::vec3 exitPosition = { 0,0,0 };
 glm::vec3 pickupPosition = { 0,0,0 };
@@ -74,7 +77,6 @@ int nCameras = 0;
 
 void setupCamera()
 {
-
 
 
 	gameState = States::extras;
@@ -564,7 +566,7 @@ int MAIN
 			break;
 		}
 		case States::extras:
-
+		{
 			if (!drawer2D.initialised)
 			{
 				setupCamera();
@@ -573,22 +575,42 @@ int MAIN
 			doCapture(0); while (isCaptureDone(0)) {};
 			memcpy(drawer2D.buffer, capture.mTargetBuf, drawer2D.height*drawer2D.width * sizeof(int));
 			cameraShader.bind();
-			drawer2D.Render();
-
-			if(escapeReleased)
+	
+			GLuint uniformLocation;
+			const char* effects[] = { "p_normal", "p_black", "p_inverse", "p_unblend" };
+			uniformLocation = cameraShader.getSoubRutineLocation(effects[effectChosen]);
+			if (uniformLocation != GL_INVALID_INDEX)
 			{
+				glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &uniformLocation);
+			}else
+			{
+				elog("Subrutine not found in the camera shader");
 				closeCamera();
-				gameState = States::mainMenu; 
+				gameState = States::mainMenu;
 				escapeReleased = false;
 			}
+			drawer2D.Render();
+			
+			if(escapeReleased)
+			{
+				escapeReleased = false;	
+				cameraMenuOn = !cameraMenuOn;
+			}
 
+			if (shouldExitCamera)
+			{
+				closeCamera();
+				gameState = States::mainMenu;
+				shouldExitCamera = false;
+			}
 
+		}
 			break;
 		default:
 			break;
 		}
 
-		if(gameState == States::mainMenu || gameState == States::inGameMenu)
+		if(gameState != States::inGame)
 		{
 			window.pushGLStates();
 			//glDisable(GL_DEPTH_TEST);
@@ -671,15 +693,27 @@ int MAIN
 				levelShouldLoad = false;
 			}
 			else
-				if (gameState == States::inGameMenu)
+			if (gameState == States::inGameMenu)
+			{
+				window.setMouseCursorVisible(1);
+				if (!gameMenu.update(mouseButtonReleased, escapeReleased))
+				{
+					gameState = States::inGame;
+					escapeReleased = false;
+				}
+			}else
+			if (gameState == States::extras)
+			{
+				if(cameraMenuOn)
 				{
 					window.setMouseCursorVisible(1);
-					if (!gameMenu.update(mouseButtonReleased, escapeReleased))
+					if (!cameraMenu.update(mouseButtonReleased, escapeReleased))
 					{
-						gameState = States::inGame;
+						cameraMenuOn = false;
 						escapeReleased = false;
-					}
-				}
+					};
+				}	
+			}
 
 			window.setView(sf::View({ 0, 0, width, height })); //todo check if necessary
 			window.display();

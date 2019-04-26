@@ -14,6 +14,11 @@ bool musicPlaying = true;
 bool vsynk = true;
 bool showFramerate = false;
 bool debugDraw = false;
+int effectChosen = 0;
+bool shouldExitCamera = false;
+
+extern bool cameraMenuOn;
+
 
 void closeLevel()
 {
@@ -66,8 +71,10 @@ void loadTexture(sf::Texture &t, const char* c)
 
 ma::Menu mainMenu;
 ma::Menu gameMenu;
+ma::Menu cameraMenu;
 ma::MenuHolder mainHolder;
 ma::MenuHolder gameHolder;
+ma::MenuHolder cameraHolder;
 sf::Font font;
 
 sf::Texture backgroundT;
@@ -77,8 +84,12 @@ sf::Texture smallTextHolderT;
 sf::Texture bigBrickT;
 sf::Texture onTexture;
 sf::Texture offTexture;
-sf::Texture backButton;
+sf::Texture backButtonTexture;
 sf::Texture textAreaT;
+sf::Texture ball1;
+sf::Texture ball2;
+sf::Texture ball3;
+sf::Texture ball4;
 
 void initializeMenu(sf::RenderWindow *window)
 {
@@ -91,27 +102,54 @@ void initializeMenu(sf::RenderWindow *window)
 	loadTexture(offTexture, "ui//noButton.png");
 	loadTexture(onTexture, "ui//yesBUtton.png");
 	loadTexture(smallTextHolderT, "ui//smallbrick.png");
-	loadTexture(backButton, "ui//backButton.png");
+	loadTexture(backButtonTexture, "ui//backButton.png");
 	loadTexture(textAreaT, "ui//textArea.png");
+	loadTexture(ball1, "ui//ball1.png");
+	loadTexture(ball2, "ui//ball2.png");
+	loadTexture(ball3, "ui//ball3.png");
+	loadTexture(ball4, "ui//ball4.png");
+
+
+	auto backButton = new ma::PlainSprite(&backButtonTexture, nullptr);
 
 	mainMenu.background.setTexture(backgroundT);
 	mainMenu.window = window;
 	mainMenu.checkForResize = true;
 	mainMenu.mainMenu = &mainHolder;
-	mainMenu.backButton = new ma::IconButton(nullptr, &backButton, nullptr);
+	mainMenu.backButton = backButton;
 	mainHolder.menu = &mainMenu;
 	mainMenu.backButtonPaddingx = 400;
 	mainMenu.backButtonPaddingy = 250;
 
-
 	gameMenu.window = window;
 	gameMenu.checkForResize = true;
 	gameMenu.mainMenu = &gameHolder;
-	gameMenu.backButton = new ma::IconButton(nullptr, &backButton, nullptr);
+	gameMenu.backButton = backButton;
 	gameMenu.backButtonPaddingx = 10;
 	gameMenu.backButtonPaddingy = 10;
 	gameHolder.menu = &gameMenu;
 
+	cameraMenu.window = window;
+	cameraMenu.checkForResize = true;
+	cameraMenu.mainMenu = &cameraHolder;
+	cameraMenu.backButton = backButton;
+	cameraMenu.backButtonPaddingx = 10;
+	cameraMenu.backButtonPaddingy = 10;
+	cameraHolder.menu = &cameraMenu;
+
+	///camera
+	auto effectChoice = new ma::ButtonChoiceGroup(&cameraMenu);
+	effectChoice->chosenBackground.setTexture(smallTextHolderT);
+	effectChoice->notChosenBackground.setTexture(smallTextHolderT);
+	effectChoice->notChosenBackground.setColor(sf::Color(255, 255, 255, 50));
+	effectChoice->index = &effectChosen;
+	effectChoice->appendElement(new ma::PlainSprite(&ball2, nullptr));
+	effectChoice->appendElement(new ma::PlainSprite(&ball1, nullptr));
+	effectChoice->appendElement(new ma::PlainSprite(&ball3, nullptr));
+	effectChoice->appendElement(new ma::PlainSprite(&ball4, nullptr));
+
+	cameraHolder.appendElement(effectChoice);
+	cameraHolder.appendElement(new ma::TextButton(&mediumTextHolderT, font, new ma::Function([] {shouldExitCamera = true; cameraMenuOn = false; }), "exit", 50, sf::Color::White));
 
 	///settings
 	auto settings = new ma::MenuHolder(&mainMenu);
@@ -120,7 +158,7 @@ void initializeMenu(sf::RenderWindow *window)
 	soundGroup->appendElement(new ma::TextButton(&mediumTextHolderT, font, nullptr, "music", 50, sf::Color::White));
 	auto vsynkGroup = new ma::ButtonGroup(&mainMenu);
 	vsynkGroup->appendElement(new ma::OnOffButton(&offTexture, &onTexture, nullptr, &vsynk, new ma::Function(&setVsynk)));
-	vsynkGroup->appendElement(new ma::TextButton(&mediumTextHolderT, font, nullptr, "vsynk", 50, sf::Color::White));
+	vsynkGroup->appendElement(new ma::TextButton(&mediumTextHolderT, font, nullptr, "vsync", 50, sf::Color::White));
 	auto framerateGroup = new ma::ButtonGroup(&mainMenu);
 	framerateGroup->appendElement(new ma::OnOffButton(&offTexture, &onTexture, nullptr, &showFramerate));
 	framerateGroup->appendElement(new ma::TextButton(&mediumTextHolderT, font, nullptr, "show framerate", 50, sf::Color::White));
