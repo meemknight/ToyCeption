@@ -196,10 +196,13 @@ int MAIN
 
 	//ShaderProgram program(VertexShader("vertex.vert"), FragmentShader("fragment.frag"));
 	//ShaderProgram normalProgram(VertexShader("vertn.vert"), FragmentShader("fragn.frag"));
-	ShaderProgram textureProgram(VertexShader("vertt.vert"), FragmentShader("fragt.frag"));
-	ShaderProgram textureProgramEffect(VertexShader("vertt.vert"), FragmentShader("fragtEffect.frag"));
-	ShaderProgram debugShader(VertexShader("debugShader.vert"), FragmentShader("debugShader.frag"));
-	ShaderProgram cameraShader(VertexShader("camera.vert"), FragmentShader("camera.frag"));
+	AssetManager<VertexShader> vsm;
+	AssetManager<FragmentShader> fsm;
+
+	ShaderProgram textureProgram(vsm.getData("vertt.vert"), fsm.getData("fragt.frag"));
+	ShaderProgram spEffects[] = { ShaderProgram(vsm.getData("vertt.vert"), fsm.getData("effect4.frag")) ,ShaderProgram(vsm.getData("vertt.vert"), fsm.getData("effect2.frag")) ,ShaderProgram(vsm.getData("vertt.vert"), fsm.getData("effect3.frag")) };
+	ShaderProgram debugShader(vsm.getData("debugShader.vert"), fsm.getData("debugShader.frag"));
+	ShaderProgram cameraShader(vsm.getData("camera.vert"), fsm.getData("camera.frag"));
 
 	customBulletdebuggClass debugDrawer(&debugShader, &camera);
 
@@ -540,8 +543,8 @@ int MAIN
 			if (playerPos.distance({exitPosition.x, exitPosition.y, exitPosition.z }) < 2) { closeLevel(); }
 			if (pickupped == false && playerPos.distance({ pickupPosition.x, pickupPosition.y, pickupPosition.z }) < 2) 
 			{
-				gameObjectPool.setShaderProgramToAllComponents(&textureProgramEffect);
-				playerObject.sp = &textureProgramEffect;
+				gameObjectPool.setShaderProgramToAllComponents(&spEffects[levelToLoad - 1]);
+				playerObject.sp = &spEffects[levelToLoad - 1];
 				pickupped = true; 
 				int pos = gameObjectPool.gameObjectVector.getPositionById(421);
 				if (pos != -1)

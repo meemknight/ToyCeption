@@ -16,15 +16,25 @@ class ShaderProgram;
 template <GLenum shaderType>
 class Shader
 {
-	Shader() {};
 public:
-	Shader(const char* name)	//todo move in cpp
+	Shader() {};
+	Shader(const char* name)
+	{
+		compile(name);
+	}
+
+	//	static using shaderType = shaderType;
+
+	unsigned int id = 0;
+	void deleteShader();
+
+	void compile(const char* name)
 	{
 		size_t size;
 		FILE *input;
 		input = fopen(name, "rb");
 
-		if(input == nullptr)
+		if (input == nullptr)
 		{
 			MessageBox(0, "Error openning shader", name, MB_ICONERROR);
 			elog("couldn't open the shader file:", name);
@@ -64,11 +74,7 @@ public:
 
 	}
 
-	//	static using shaderType = shaderType;
 
-	void deleteShader();
-
-	unsigned int id;
 
 	friend ShaderProgram;
 };
