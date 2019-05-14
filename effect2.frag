@@ -67,9 +67,7 @@ vec3 phongModel(vec3 normal, const in Light light)
 
 		float cosDif = max(0.f, dot(lightVectorWorld, normal));
 	//float diffusedBrightness = cosDif;
-	const int levels = 4;
-	const float scaleFactor = 1.0f /levels;
-	float diffusedBrightness = ceil(cosDif * levels) * scaleFactor;
+	float diffusedBrightness = cosDif;
 	float specularBrightness;
 
 	
@@ -90,12 +88,10 @@ vec3 phongModel(vec3 normal, const in Light light)
 
 	vec3 ASD;
 
-	 //edgeDetection = 1;
 	 vec3 diff = diffusedBrightness * u_material.kd.rgb	* light.diffuse * distanceDimFactor;
 	 vec3 spec = specularBrightness * u_material.ks.rgb	* light.specular * distanceDimFactor;
 	 vec3 ambb =		1			* u_material.ka.rgb	* light.ambient * distanceDimFactor;
 
-	 //unblend(diff, 7);
 
 	ASD.rgb = vec3(diff) +
 			  vec3(spec) + 

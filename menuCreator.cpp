@@ -90,6 +90,7 @@ sf::Texture ball1;
 sf::Texture ball2;
 sf::Texture ball3;
 sf::Texture ball4;
+sf::Texture cameraTexture;
 
 void initializeMenu(sf::RenderWindow *window)
 {
@@ -108,7 +109,7 @@ void initializeMenu(sf::RenderWindow *window)
 	loadTexture(ball2, "ui//ball2.png");
 	loadTexture(ball3, "ui//ball3.png");
 	loadTexture(ball4, "ui//ball4.png");
-
+	loadTexture(cameraTexture, "ui//camera.png");
 
 	auto backButton = new ma::PlainSprite(&backButtonTexture, nullptr);
 
@@ -148,8 +149,12 @@ void initializeMenu(sf::RenderWindow *window)
 	effectChoice->appendElement(new ma::PlainSprite(&ball3, nullptr));
 	effectChoice->appendElement(new ma::PlainSprite(&ball4, nullptr));
 
+	auto secondRow = new ma::ButtonGroup(&cameraMenu);
+	secondRow->appendElement(new ma::TextButton(&mediumTextHolderT, font, new ma::Function([] {shouldExitCamera = true; cameraMenuOn = false; }), "exit", 50, sf::Color::White));
+	secondRow->appendElement(new ma::IconButton(&smallTextHolderT, &cameraTexture, nullptr));
+
 	cameraHolder.appendElement(effectChoice);
-	cameraHolder.appendElement(new ma::TextButton(&mediumTextHolderT, font, new ma::Function([] {shouldExitCamera = true; cameraMenuOn = false; }), "exit", 50, sf::Color::White));
+	cameraHolder.appendElement(secondRow);
 
 	///settings
 	auto settings = new ma::MenuHolder(&mainMenu);

@@ -75,10 +75,10 @@ Drawer2D drawer2D;
 SimpleCapParams capture;
 int nCameras = 0;
 
+void closeCamera();
+
 void setupCamera()
 {
-
-
 	gameState = States::extras;
 
 	if(drawer2D.initialised)
@@ -92,6 +92,8 @@ void setupCamera()
 	if(nCameras == 0)
 	{
 		elog("no camera detedted");
+		gameState = States::mainMenu;
+		return;
 	}
 
 	capture.mHeight = drawer2D.height;
@@ -101,6 +103,9 @@ void setupCamera()
 	if (initCapture(0, &capture) == 0)
 	{
 		elog("couldn't load camera drivers");
+		closeCamera();
+		gameState = States::mainMenu;
+		return;
 	}
 
 }
@@ -108,8 +113,8 @@ void setupCamera()
 void closeCamera()
 {
 	drawer2D.Cleanup();
-	delete[] capture.mTargetBuf;
 	deinitCapture(0);
+	delete[] capture.mTargetBuf;
 }
 
 
@@ -210,7 +215,6 @@ int MAIN
 	world->getDebugDrawer()->setDebugMode(btIDebugDraw::DebugDrawModes::DBG_DrawWireframe);
 
 	gameObjectPool.initialize(&textureProgram, &camera, &light, world, &textureManager, &modelManager);
-
 
 	glClearColor(0.082, 0.082, 0.12, 1.0);
 
@@ -551,7 +555,20 @@ int MAIN
 				{
 					gameObjectPool.gameObjectVector.RemoveElement(pos);
 				}
-				playerObject.objectData[0].material = Material::cyanPlastic();
+
+				if(levelToLoad == 1)
+				{
+					playerObject.objectData[0].material = Material::cyanPlastic();
+				}else
+				if(levelToLoad == 2)
+				{
+					playerObject.objectData[0].material = Material::yellowPlastic();
+				}else
+				if (levelToLoad == 3) 
+				{
+					playerObject.objectData[0].material = Material::greenRubber();
+				}
+
 			}
 
 
@@ -685,7 +702,22 @@ int MAIN
 					pos = gameObjectPool.gameObjectVector.getPositionById(421);
 					if (pos != -1)
 					{
-						gameObjectPool.gameObjectVector.elements[pos].setMaterial(Material::cyanPlastic());
+
+						if (levelToLoad == 1)
+						{
+							gameObjectPool.gameObjectVector.elements[pos].setMaterial(Material::cyanPlastic());
+						}
+						else
+						if (levelToLoad == 2)
+						{
+							gameObjectPool.gameObjectVector.elements[pos].setMaterial(Material::yellowPlastic());
+						}
+						else
+						if (levelToLoad == 3)
+						{
+							gameObjectPool.gameObjectVector.elements[pos].setMaterial(Material::greenRubber());
+						}
+						
 						pickupPosition = gameObjectPool.gameObjectVector.elements[pos].getInstance(0).getPosition();
 					}
 					else

@@ -65,11 +65,10 @@ vec3 phongModel(vec3 normal, const in Light light)
 			lightVectorWorld = normalize(light.position.xyz - worldspace); 
 		}
 
+	
 		float cosDif = max(0.f, dot(lightVectorWorld, normal));
 	//float diffusedBrightness = cosDif;
-	const int levels = 4;
-	const float scaleFactor = 1.0f /levels;
-	float diffusedBrightness = ceil(cosDif * levels) * scaleFactor;
+	float diffusedBrightness = cosDif;
 	float specularBrightness;
 
 	
