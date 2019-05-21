@@ -59,6 +59,9 @@ public:
 	void Clear();
 	void Render();
 
+	//this will save to an image the current drawing target
+	void SaveImage();
+
 	void Cleanup();
 };
 

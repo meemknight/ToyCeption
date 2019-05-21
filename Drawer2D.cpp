@@ -8,6 +8,7 @@ Drawer2D::Drawer2D(int width, int height)
 
 void Drawer2D::initialize(int width, int height)
 {
+	glDisable(GL_DEPTH_TEST);
 	initialised = true;
 	this->width = width;
 	this->height = height;
@@ -59,6 +60,7 @@ void Drawer2D::Render()
 
 void Drawer2D::Cleanup()
 {
+	glEnable(GL_DEPTH_TEST);
 	if(initialised)
 	{
 		initialised = false;

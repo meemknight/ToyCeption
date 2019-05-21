@@ -8,15 +8,24 @@
 ///to controll the behavour of the log or just 
 ///change from debug to releasee
 
+///define ERRORS_ONLY
+///to only display error messages
+
+
 #pragma once
 #include <iostream>
 #include <Windows.h>
+#include <sstream>
 
-#define FORCE_LOG
+#define ERRORS_ONLY
 
 #ifdef _DEBUG
 #define FORCE_LOG
 #endif
+
+#ifdef ERRORS_ONLY
+#undef FORCE_LOG
+#endif // ERRORS_ONLY
 
 #ifdef FORCE_LOG
 #define MAIN main()
@@ -54,7 +63,7 @@ inline void wlog()
 
 template<class F, class ...T>
 inline void wlog(F f, T ...args)
-{	
+{
 	SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), 14);
 	std::cout << f << " ";
 	wlog(args...);
@@ -129,9 +138,89 @@ inline void elog(F f, T ...args)
 	elog(args...);
 }
 #else
+
+#ifdef ERRORS_ONLY
+
+inline void elog(std::stringstream &&stream)
+{
+	OutputDebugString(stream.str().c_str());
+
+	int rezult = MessageBox(0, stream.str().c_str(), "error, abort game ?", MB_YESNO | MB_ICONERROR);
+
+	if (rezult == IDYES)
+	{
+		exit(0);
+	}
+
+}
+
+template<class F, class ...T>
+inline void elog(std::stringstream &&stream, F &&f, T &&...args)
+{
+	stream << std::forward<F>(f) << " ";
+
+	elog(std::move(stream), args...);
+}
+
+template<class F, class ...T>
+inline void elog(F &&f, T &&...args)
+{
+	std::stringstream stream;
+
+	stream << std::forward<F>(f) << " ";
+
+	elog(std::move(stream), args...);
+}
+
+
+
+#else
 template<class F, class ...T>
 inline void elog(F f, T ...args)
 {
 
 }
 #endif
+
+#endif
+
+
+/*
+
+#ifdef _DEBUG
+
+#define log std::cout
+
+#else // _DEBUG
+
+
+struct _log
+{
+}log;
+
+template<class T>
+const _log& operator<<(const _log &l,const T &other) {}
+
+#endif // RELEASE
+
+*/
+
+/*
+#ifndef _DEBUG
+static struct __RemoveCout
+{
+	__RemoveCout() { std::cout.rdbuf(nullptr); }
+}_RemoveCout;
+#endif // !_DEBUG
+*/
+
+/*
+struct _Log {}log;
+template<typename T>
+_Log operator<<(_Log logger, const T &val) {
+#ifdef _DEBUG
+	std::cout << val;
+#endif
+	return logger;
+}
+*/
