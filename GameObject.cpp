@@ -16,8 +16,8 @@
 void appendObject_(vertexBuffer &dataTodraw, std::vector<ObjectData> &objectData, const LoadedIndexModel & model, const glm::vec3 &padding, AssetManager<Texture> &manager, const char* collisionIdentifierName = "COLLISION")
 {
 	std::vector<float> dataForModel;
-	std::vector<unsigned int> indicesForModel; 
-	
+	std::vector<unsigned int> indicesForModel;
+
 	int materialStart = objectData.size();
 
 	int maxData = 0;
@@ -36,17 +36,17 @@ void appendObject_(vertexBuffer &dataTodraw, std::vector<ObjectData> &objectData
 
 	for (unsigned int m = 0; m < model.m.LoadedMeshes.size(); m++)
 	{
-		
-		
-		
-		
+
+
+
+
 		if (collisionIdentifierName != nullptr && model.m.LoadedMeshes[m].MeshName != "" && model.m.LoadedMeshes[m].MeshName.find(collisionIdentifierName) != std::string::npos)
 		{
-		
+
 			continue;
 			//not loading the collision boxes into the gpu 
 		}
-		
+
 		ObjectData temp;
 
 		dataForModel.clear();
@@ -63,21 +63,21 @@ void appendObject_(vertexBuffer &dataTodraw, std::vector<ObjectData> &objectData
 			dataForModel.push_back(model.m.LoadedMeshes[m].Vertices[i].Normal.Y);
 			dataForModel.push_back(model.m.LoadedMeshes[m].Vertices[i].Normal.Z);
 		}
-		temp.vb = vertexBuffer(dataForModel.data(), dataForModel.size() * sizeof(float));
+		temp.vb = vertexBuffer(dataForModel.data(), dataForModel.size() * sizeof(float), GL_STATIC_DRAW);
 
 		indicesForModel.clear();
 
 		for (unsigned int i = 0; i < model.m.LoadedMeshes[m].Indices.size(); i++)
 		{
-		
+
 			indicesForModel.push_back(model.m.LoadedMeshes[m].Indices[i]);
 		}
 		temp.ib = indexBuffer(indicesForModel.data(), indicesForModel.size() * sizeof(unsigned int));
 		temp.va.attributes.clear();
-		temp.va = std::move(vertexAttribute{ 3, 2, 3 }); 
+		temp.va = std::move(vertexAttribute{ 3, 2, 3 });
 
-		
-		
+
+
 		objectData.push_back(temp);
 	}
 	int padd = 0;
@@ -98,14 +98,14 @@ void appendObject_(vertexBuffer &dataTodraw, std::vector<ObjectData> &objectData
 		material.ks = { mat.Ks.X, mat.Ks.Y, mat.Ks.Z };
 		material.shiny = mat.Ns;
 		if (material.shiny == 0) { material.shiny = 1; }
-		
+
 		if (mat.map_Kd != "")
 		{
-			
+
 			objectData[m + materialStart - padd].texture = manager.getData(mat.map_Kd.c_str());
 
 		}
-		
+
 		objectData[m + materialStart - padd].material = material;
 
 		//old implementation
@@ -125,14 +125,13 @@ void appendObject_(vertexBuffer &dataTodraw, std::vector<ObjectData> &objectData
 			//	manager->pushBack(t);
 			//	material.materialIndex = t.id;
 			//}
-		
 			objectData[m + materialStart].texture = manager.getTexture(model.m.LoadedMaterials[m].map_Kd.c_str());
 		}
 		if(m<objectData.size())
 		{
 			objectData[m + materialStart].material = material;
 		}
-		else 
+		else
 		{
 			objectData[m + materialStart].material = Material::defaultMaterial();
 			wlog("missing a material...");
@@ -145,15 +144,14 @@ void appendObject_(vertexBuffer &dataTodraw, std::vector<ObjectData> &objectData
 void GameObject::initialize()
 {
 	//warning, adding code here might break some code at the gpucleanup and cleanup
-	dataTodraw.createData(0, 0);
-	//timeUniformLocation = glGetUniformLocation(sp.id, "u_time");
+	dataTodraw.createData(0, 0, GL_DYNAMIC_DRAW);
 }
 
 
 
 void GameObject::loadPtn323(const LoadedIndexModel &model, AssetManager<Texture> *manager)
 {
-	
+
 	//initialize();
 
 	std::vector<float> dataForModel;
@@ -177,14 +175,14 @@ void GameObject::loadPtn323(const LoadedIndexModel &model, AssetManager<Texture>
 	{
 		indicesForModel.push_back(model.m.LoadedIndices[i]);
 	}
-	vb = vertexBuffer(dataForModel.data(), dataForModel.size() * sizeof(float));
+	vb = vertexBuffer(dataForModel.data(), dataForModel.size() * sizeof(float), GL_STATIC_DRAW);
 	ib = indexBuffer(indicesForModel.data(), indicesForModel.size() * sizeof(unsigned int));
 	va = std::move(vertexAttribute{ 3, 2, 3 });
 
 
-	if(model.m.LoadedMaterials.size()>0)
+	if (model.m.LoadedMaterials.size() > 0)
 	{
-	
+
 		material.ka = glm::vec3(model.m.LoadedMaterials[0].Ka.X, model.m.LoadedMaterials[0].Ka.Y, model.m.LoadedMaterials[0].Ka.Z);
 		material.kd = glm::vec3(model.m.LoadedMaterials[0].Kd.X, model.m.LoadedMaterials[0].Kd.Y, model.m.LoadedMaterials[0].Kd.Z);
 		material.ks = glm::vec3(model.m.LoadedMaterials[0].Ks.X, model.m.LoadedMaterials[0].Ks.Y, model.m.LoadedMaterials[0].Ks.Z);
@@ -215,7 +213,7 @@ void GameObject::loadPcn333(const LoadedIndexModel &model, ShaderProgram *sp)
 		dataForModel.push_back(model.m.LoadedVertices[i].Position.Z);
 
 		dataForModel.push_back(0.5);	//color
-		dataForModel.push_back(0.5);	
+		dataForModel.push_back(0.5);
 		dataForModel.push_back(0.5);
 
 		dataForModel.push_back(model.m.LoadedVertices[i].Normal.X);
@@ -228,7 +226,7 @@ void GameObject::loadPcn333(const LoadedIndexModel &model, ShaderProgram *sp)
 	{
 		indicesForModel.push_back(model.m.LoadedIndices[i]);
 	}
-	vb = vertexBuffer(dataForModel.data(), dataForModel.size() * sizeof(float));
+	vb = vertexBuffer(dataForModel.data(), dataForModel.size() * sizeof(float), GL_STATIC_DRAW);
 	ib = indexBuffer(indicesForModel.data(), indicesForModel.size() * sizeof(unsigned int));
 	vertexAttribute v;
 	v.pushAttribute(Attribute(3, sizeof(float), GL_FLAT));
@@ -275,14 +273,14 @@ void GameObject::draw()
 		for (auto &i : instances)
 		{
 			//i.worldToViexMatrix = camera->getProjectionViewMatrix();
-			
+
 		}
 		sp->uniform("u_eyePosition", camera->getCurrentViewingPosition().x, camera->getCurrentViewingPosition().y, camera->getCurrentViewingPosition().z);
 	} //sets the world to view matrix;
 
-	
+
 	material.bind(*sp);
-	
+
 	if (texture.id)
 	{
 		texture.bind();
@@ -334,11 +332,11 @@ void GameObject::draw()
 
 #endif //ALLOCA_OPTIMISATIONS ^
 
-	if(lights != nullptr)
+	if (lights != nullptr)
 	{
 		lights->bind(*sp);
 	}
-	
+
 	va.bindForInstances();
 
 	glDrawElementsInstanced(GL_TRIANGLES, ib.size / sizeof(unsigned int), GL_UNSIGNED_INT, 0, instances.size());
@@ -366,12 +364,12 @@ void GameObject::pushElement(glm::mat4 matrix)
 void GameObject::pushElement(glm::vec3 position)
 {
 	pushElement(glm::translate(position));
-	
+
 }
 
 void GameObject::pushElement(glm::vec3 position, glm::vec3 rotation)
 {
-	
+
 	auto objectToWorldMatrix = glm::rotate(glm::translate(position), glm::radians(rotation.x), glm::vec3(1, 0, 0)) *
 		glm::rotate(glm::radians(rotation.y), glm::vec3(0, 1, 0)) *
 		glm::rotate(glm::radians(rotation.z), glm::vec3(0, 0, 1));
@@ -383,7 +381,7 @@ void GameObject::pushElement(glm::vec3 position, glm::vec3 rotation, float scale
 {
 	auto objectToWorldMatrix = glm::scale(glm::rotate(glm::translate(position), glm::radians(rotation.x), glm::vec3(1, 0, 0)) *
 		glm::rotate(glm::radians(rotation.y), glm::vec3(0, 1, 0)) *
-		glm::rotate(glm::radians(rotation.z), glm::vec3(0, 0, 1)), {scale, scale, scale});
+		glm::rotate(glm::radians(rotation.z), glm::vec3(0, 0, 1)), { scale, scale, scale });
 	pushElement(objectToWorldMatrix);
 	instances[instances.size() - 1].setRotation(rotation.x, rotation.y, rotation.z);
 }
@@ -448,7 +446,7 @@ void ComplexObject::initialize()
 void ComplexObject::loadPtn323(const LoadedIndexModel & model, AssetManager<Texture> &manager, const char* collisionIdentifierName)
 {
 
-	appendObject(model, manager, {0,0,0}, collisionIdentifierName);
+	appendObject(model, manager, { 0,0,0 }, collisionIdentifierName);
 
 }
 
@@ -465,16 +463,16 @@ void ComplexObject::draw()
 		for (auto &i : instances)
 		{
 			//i.worldToViexMatrix = camera->getProjectionViewMatrix();
-			
+
 		}
 		sp->uniform("u_eyePosition", camera->getCurrentViewingPosition().x, camera->getCurrentViewingPosition().y, camera->getCurrentViewingPosition().z);
 	} //sets the world to view matrix;
-	
-	
+
+
 	//todo ? only in textures ??
 	sp->uniformi("u_sampl", 0);
 
-	for(unsigned int m=0; m<objectData.size(); m++)
+	for (unsigned int m = 0; m < objectData.size(); m++)
 	{
 		objectData[m].material.bind(*sp);
 
@@ -514,9 +512,9 @@ void ComplexObject::draw()
 		}
 
 		glDrawElementsInstanced(GL_TRIANGLES, objectData[m].ib.size / sizeof(unsigned int), GL_UNSIGNED_INT, 0, instances.size());
-		
+
 	}
-	
+
 }
 
 void ComplexObject::pushElement(glm::mat4 matrix)
@@ -582,7 +580,7 @@ void ComplexObject::cleanup()
 
 void ComplexObject::gpuCleanup()
 {
-	for(auto &i: objectData)
+	for (auto &i : objectData)
 	{
 		i.ib.cleanup();
 		i.vb.cleanup();
@@ -602,7 +600,7 @@ void PhisicalObject::initialize()
 void PhisicalObject::loadPtn323(const LoadedIndexModel & model, AssetManager<Texture> &manager, const char* collisionIdentifierName)
 {
 	//initialize();
-	appendObject(model, manager, {0,0,0}, collisionIdentifierName);
+	appendObject(model, manager, { 0,0,0 }, collisionIdentifierName);
 }
 
 ///collisionIdentifier can be a nullptr
@@ -612,7 +610,6 @@ void PhisicalObject::loadCollisionBox(const LoadedIndexModel & model, const char
 	/*
 	unsigned int size = model.m.LoadedIndices.size();
 	btVector3 *temp = new btVector3[size];
-
 	for (int i = 0; i < size; i++)
 	{
 		auto v = model.m.LoadedVertices[model.m.LoadedIndices[i]].Position;
@@ -620,12 +617,12 @@ void PhisicalObject::loadCollisionBox(const LoadedIndexModel & model, const char
 	}
 	auto a = new btCompoundShape;
 	a->addChildShape(btTransform::getIdentity(), new btConvexHullShape(*temp, size));
-	collisionShape = a; 
+	collisionShape = a;
 	*/
-	
+
 	//deleteCollisionShape();
 
-	if(mass != 0)
+	if (mass != 0)
 	{
 		collisionShape = new btCompoundShape();
 
@@ -644,7 +641,7 @@ void PhisicalObject::loadCollisionBox(const LoadedIndexModel & model, const char
 				btVector3 *temp = new btVector3[size];
 #endif // ALLOCA_OPTIMISATIONS
 
-			
+
 
 				for (unsigned int i = 0; i < size; i++)
 				{
@@ -653,17 +650,18 @@ void PhisicalObject::loadCollisionBox(const LoadedIndexModel & model, const char
 				}
 
 				((btCompoundShape*)collisionShape)->addChildShape(btTransform::getIdentity(), new btConvexHullShape(*temp, size));
-				
+
 #ifndef ALLOCA_OPTIMISATIONS
 				delete temp;
 #endif // !ALLOCA_OPTIMISATIONS
-			
+
 			}
 		}
-	
-	}else
+
+	}
+	else
 	{
-	 	btTriangleMesh *triangle = new btTriangleMesh();
+		btTriangleMesh *triangle = new btTriangleMesh();
 		//bttrianglevert
 		//triangle->addIndexedMesh();
 
@@ -674,11 +672,11 @@ void PhisicalObject::loadCollisionBox(const LoadedIndexModel & model, const char
 			if (collisionIdentifierName == nullptr || (model.m.LoadedMeshes[m].MeshName != "" && model.m.LoadedMeshes[m].MeshName.find(collisionIdentifierName) != std::string::npos))
 			{
 				loadedCollisionBoxes++;
-				
+
 				btIndexedMesh mesh;
 				mesh.m_numTriangles = model.m.LoadedMeshes[m].Indices.size() / 3;
 				mesh.m_numVertices = model.m.LoadedMeshes[m].Vertices.size();
-				
+
 				triangeIndexBase = new unsigned char[model.m.LoadedMeshes[m].Indices.size() * sizeof(model.m.LoadedMeshes[m].Indices[0])];
 				memcpy(triangeIndexBase, (void*)&model.m.LoadedMeshes[m].Indices[0], model.m.LoadedMeshes[m].Indices.size() * sizeof(model.m.LoadedMeshes[m].Indices[0]));
 				mesh.m_triangleIndexBase = triangeIndexBase;
@@ -700,12 +698,12 @@ void PhisicalObject::loadCollisionBox(const LoadedIndexModel & model, const char
 		}
 
 		collisionShape = new btBvhTriangleMeshShape(triangle, 1);
-		
-	
+
+
 	}
-	
-	
-	
+
+
+
 }
 
 void PhisicalObject::draw()
@@ -717,6 +715,7 @@ void PhisicalObject::draw()
 	else
 	{
 		elog("missing shader program!");
+		std::terminate();
 	}
 
 	if (camera != nullptr)
@@ -738,7 +737,7 @@ void PhisicalObject::draw()
 	{
 		elog("missing light!\n");
 	}
-	
+
 
 	sp->uniformi("u_sampl", 0);
 
@@ -764,7 +763,7 @@ void PhisicalObject::draw()
 			t.getOpenGLMatrix((float*)&glMatrix);
 			//temp[i * 2] = instances[i].fullTransformMatrix();
 			//temp[i * 2 + 1] = instances[i].objectToWorldMatrix();
-			
+
 			temp[0] = camera->getProjectionViewMatrix() * glMatrix;
 			temp[1] = glMatrix;
 			dataTodraw.subData(temp, offset, sizeof(temp));
@@ -782,7 +781,8 @@ void PhisicalObject::draw()
 			objectData[m].texture.bind(0);
 			GLuint temp = sp->getSoubRutineLocation("p_withT");
 			glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &temp);
-		}else
+		}
+		else
 		{
 			GLuint temp = sp->getSoubRutineLocation("p_withoutT");
 			glUniformSubroutinesuiv(GL_FRAGMENT_SHADER, 1, &temp);
@@ -806,19 +806,17 @@ void PhisicalObject::pushElement(glm::vec3 position, glm::vec3 rotation)
 	btTransform t;
 	t.setIdentity();
 	t.setOrigin({ position.x, position.y, position.z });
-
 	btVector3 inertia = { 0, 0, 0 };
 	if (mass != 0.0)
 	{
 		collisionShape->calculateLocalInertia(mass, inertia);
 	}
-
 	btMotionState *motion = new btDefaultMotionState(t);
 	btRigidBody *body = new btRigidBody(mass, motion, collisionShape, inertia);
 	*/
 
 	//
-	if(collisionShape->isCompound())
+	if (collisionShape->isCompound())
 	{
 		size_t loadedCollisionBoxes = ((btCompoundShape*)collisionShape)->getNumChildShapes();
 
@@ -836,7 +834,7 @@ void PhisicalObject::pushElement(glm::vec3 position, glm::vec3 rotation)
 		btVector3 inertia = { 0,0,0 };
 		((btCompoundShape*)collisionShape)->calculatePrincipalAxisTransform(masses, t, inertia);
 #else // ALLOCA_OPTIMISATIONS
-		float *masses = new float[loadedCollisionBoxes]; 
+		float *masses = new float[loadedCollisionBoxes];
 		for (unsigned int i = 0; i < loadedCollisionBoxes; i++)
 		{
 			masses[i] = mass / loadedCollisionBoxes; //todo ?
@@ -853,7 +851,7 @@ void PhisicalObject::pushElement(glm::vec3 position, glm::vec3 rotation)
 
 
 		t.setIdentity();
-		t.setOrigin({ position.x, position.y, position.z});
+		t.setOrigin({ position.x, position.y, position.z });
 		t.setRotation({ rotation.x, rotation.y, rotation.z });
 
 
@@ -863,13 +861,14 @@ void PhisicalObject::pushElement(glm::vec3 position, glm::vec3 rotation)
 		body->setFriction(1);
 		body->setRestitution(0);
 
-	
+
 		//
 		world->addRigidBody(body);
 
 		rigidBodies.push_back(body);
-	
-	}else
+
+	}
+	else
 	{
 		btTransform t;
 		t.setIdentity();
@@ -877,11 +876,11 @@ void PhisicalObject::pushElement(glm::vec3 position, glm::vec3 rotation)
 		t.setRotation({ rotation.x, rotation.y, rotation.z });
 
 		btVector3 inertia = { 0, 0, 0 };
-	
+
 
 		btMotionState *motion = new btDefaultMotionState(t);
 		btRigidBody *body = new btRigidBody(mass, motion, collisionShape, inertia);
-		
+
 		body->setFriction(1);
 		//body->setRestitution(0);
 
@@ -890,14 +889,14 @@ void PhisicalObject::pushElement(glm::vec3 position, glm::vec3 rotation)
 		rigidBodies.push_back(body);
 	}
 
-	
+
 
 	dataTodraw.recreateData(0, sizeof(glm::mat4)*rigidBodies.size() * 2);
 }
 
 void PhisicalObject::deleteElement(unsigned int index)
 {
-	
+
 	auto body = rigidBodies.at(index);
 	world->removeRigidBody(body);
 
@@ -905,8 +904,8 @@ void PhisicalObject::deleteElement(unsigned int index)
 	delete body;
 
 	rigidBodies.erase(rigidBodies.begin() + index);
-	
-	
+
+
 }
 
 void PhisicalObject::setElementPosition(int index, glm::vec3 position)
@@ -941,7 +940,7 @@ bool PhisicalObject::colidesWith(int thisIndex, btRigidBody * with)
 		const btCollisionObject* obA = contactManifold->getBody0();
 		const btCollisionObject* obB = contactManifold->getBody1();
 		auto thiss = rigidBodies[thisIndex];
-		if((obA == with || obB == with)&&(obA == thiss || obB == thiss))
+		if ((obA == with || obB == with) && (obA == thiss || obB == thiss))
 		{
 			return true;
 		}
@@ -1001,26 +1000,27 @@ void PhisicalObject::gpuCleanup()
 
 void PhisicalObject::deleteCollisionShape()
 {
-	if(triangeIndexBase)
+	if (triangeIndexBase)
 	{
 		delete[] triangeIndexBase;
 		triangeIndexBase = nullptr;
 	}
 
-	if(vertexBase)
+	if (vertexBase)
 	{
 		delete[] vertexBase;
 		vertexBase = nullptr;
 	}
 
-	if(collisionShape->isCompound())
+	if (collisionShape->isCompound())
 	{
 		size_t loadedCollisionBoxes = ((btCompoundShape*)collisionShape)->getNumChildShapes();
-		for(int i=0; i<loadedCollisionBoxes; i++)
+		for (int i = 0; i < loadedCollisionBoxes; i++)
 		{
 			delete ((btCompoundShape*)collisionShape)->getChildShape(i);
 		}
-	}else
+	}
+	else
 	{
 		delete ((btBvhTriangleMeshShape*)collisionShape)->getTriangleInfoMap();
 	}
@@ -1028,4 +1028,3 @@ void PhisicalObject::deleteCollisionShape()
 	delete collisionShape;
 	//todo: implement
 }
-
