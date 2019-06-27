@@ -208,13 +208,14 @@ int MAIN
 	ShaderProgram spEffects[] = { ShaderProgram(vsm.getData("vertt.vert"), fsm.getData("effect4.frag")) ,ShaderProgram(vsm.getData("vertt.vert"), fsm.getData("effect2.frag")) ,ShaderProgram(vsm.getData("vertt.vert"), fsm.getData("effect3.frag")) };
 	ShaderProgram debugShader(vsm.getData("debugShader.vert"), fsm.getData("debugShader.frag"));
 	ShaderProgram cameraShader(vsm.getData("camera.vert"), fsm.getData("camera.frag"));
+	ShaderProgram particleShader({ "particleVert.vert" }, { "particleFrag.frag" });
 
 	customBulletdebuggClass debugDrawer(&debugShader, &camera);
 
 	world->setDebugDrawer(&debugDrawer);
 	world->getDebugDrawer()->setDebugMode(btIDebugDraw::DebugDrawModes::DBG_DrawWireframe);
 
-	gameObjectPool.initialize(&textureProgram, &camera, &light, world, &textureManager, &modelManager);
+	gameObjectPool.initialize(&textureProgram, &camera, &light, world, &textureManager, &modelManager, &particleShader);
 
 	glClearColor(0.082, 0.082, 0.12, 1.0);
 
@@ -576,7 +577,7 @@ int MAIN
 			camera.topDownAngle = playerAngle;
 			playerObject.draw();
 
-			gameObjectPool.drawAll();
+			gameObjectPool.drawAll(deltatime);
 
 			if (debugDraw) 
 			{

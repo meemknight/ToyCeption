@@ -18,10 +18,11 @@ glm::vec3 Camera::getFirstPersonPosition()
 
 glm::vec3 Camera::getCurrentViewingPosition()
 {
-	if(firstPersonCamera)
+	if (firstPersonCamera)
 	{
 		return getFirstPersonPosition();
-	}else
+	}
+	else
 	{
 		return position;
 	}
@@ -30,13 +31,14 @@ glm::vec3 Camera::getCurrentViewingPosition()
 Camera::Camera()
 {
 }
+
 Camera::Camera(float angle, float * width, float * height, float closePlane, float farPlane)
 {
 	projectionData.angle = angle;
 	projectionData.width = width;
 	projectionData.height = height;
 	projectionData.closePlane = closePlane;
-	projectionData.farPlane = farPlane;	
+	projectionData.farPlane = farPlane;
 }
 /*
 void Camera::setAngle(float a)
@@ -46,14 +48,14 @@ void Camera::setAngle(float a)
 
 	z = -cos(a);
 	x = sin(a);
-	
+
 	viewDirection = { x,y,z };
 	angle = a;
 }
 
 void Camera::move(glm::vec3 m)
 {
-	
+
 	float lenght = sqrt(pow(m.x, 2) + pow(m.z, 2));
 	if (lenght <= 0.001 && lenght >= -0.001)return;
 	float a = asin(m.z / lenght); //?
@@ -62,7 +64,7 @@ void Camera::move(glm::vec3 m)
 	m.z = sin(a + angle)*lenght;
 
 	position += m;
-	
+
 }
 */
 
@@ -71,9 +73,10 @@ glm::mat4 Camera::getObjectToWorld()
 	if (!firstPersonCamera)
 	{
 		return glm::lookAt(position, position + viewDirection, upPositipon);
-	}else
+	}
+	else
 	{
-		
+
 		return glm::lookAt(getFirstPersonPosition(), playerPosition, upPositipon);
 	}
 }
@@ -81,6 +84,11 @@ glm::mat4 Camera::getObjectToWorld()
 glm::mat4 Camera::getProjectionViewMatrix()
 {
 	return glm::perspective(glm::radians(projectionData.angle), *projectionData.width / *projectionData.height, projectionData.closePlane, projectionData.farPlane) * getObjectToWorld();
+}
+
+glm::mat4 Camera::getProjectionMatrix()
+{
+	return glm::perspective(glm::radians(projectionData.angle), *projectionData.width / *projectionData.height, projectionData.closePlane, projectionData.farPlane);
 }
 
 void Camera::mouseUpdate(const glm::vec2 & pos, sf::RenderWindow &window)
@@ -96,19 +104,20 @@ void Camera::mouseUpdate(const glm::vec2 & pos, sf::RenderWindow &window)
 	glm::vec3 toRotate = glm::cross(viewDirection, upPositipon);
 
 	viewDirection = glm::mat3(glm::rotate(glm::radians(-delta.x * rSpeed), upPositipon)) * viewDirection;
-	
-	if(delta.y > 0 )
+
+	if (delta.y > 0)
 	{	//down
 		if (viewDirection.y < -0.99)
 			goto noMove;
-	}else
+	}
+	else
 	{	//up
 		if (viewDirection.y > 0.99)
-			goto noMove;	
+			goto noMove;
 	}
-	
+
 	viewDirection = glm::mat3(glm::rotate(glm::radians(-delta.y * rSpeed), toRotate)) * viewDirection;
-	noMove:
+noMove:
 
 
 	//viewDirection.x += glm::radians(delta.x);
@@ -152,11 +161,12 @@ void Camera::moveFront(float speed)
 	if (flyCamera)
 	{
 		position += speed * mSpeed * viewDirection;
-	}else
+	}
+	else
 	{
 		position -= speed * mSpeed * glm::normalize(glm::cross(glm::cross(viewDirection, upPositipon), upPositipon));
 	}
-	
+
 }
 
 void Camera::moveBack(float speed)

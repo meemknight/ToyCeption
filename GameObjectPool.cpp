@@ -6,7 +6,7 @@
 
 #include "GameObjectPool.h"
 
-void GameObjectPool::setShaderProgramToAllComponents(ShaderProgram  *sp)
+void GameObjectPool::setShaderProgramToAllComponents(ShaderProgram *sp)
 {
 	this->sp = sp;
 	for (auto &i : gameObjectVector.elements)
@@ -40,7 +40,6 @@ void GameObjectPool::load(const char * file)
 	std::unordered_map <std::string, int> objectsNames;
 	std::unordered_map <std::string, int> complexObjectsNames;
 	std::unordered_map <std::string, int> phsicalObjectsNames;
-
 
 	for (auto i : data)
 	{
@@ -224,6 +223,31 @@ void GameObjectPool::load(const char * file)
 			}
 		}
 		break;
+		case particle:
+		{
+			if (i.id != 0)
+			{
+				ParticleSystem temp;
+				temp.camera = camera;
+				temp.light = lights;
+				temp.sp = particleShaderProgram;
+				temp.position = i.position;
+				temp.loadParticleSystem(i.name.c_str());
+				particleObjectVector.PushElementWithId(temp, i.id);
+			}
+			else
+			{
+				ParticleSystem temp;
+				temp.camera = camera;
+				temp.light = lights;
+				temp.sp = particleShaderProgram;
+				temp.position = i.position;
+				temp.loadParticleSystem(i.name.c_str());
+				particleObjectVector.PushElement(temp);
+			}
+
+		}
+		break;
 		default:
 			elog("error in the map file: ", file, " unrecognised object type: ", i.type);
 			break;
@@ -234,7 +258,7 @@ void GameObjectPool::load(const char * file)
 
 }
 
-void GameObjectPool::drawAll()
+void GameObjectPool::drawAll(float deltaTime)
 {
 	for (auto &i : gameObjectVector.elements)
 	{
@@ -249,6 +273,11 @@ void GameObjectPool::drawAll()
 	for (auto &i : phisicalObjectVector.elements)
 	{
 		i.draw();
+	}
+
+	for (auto &i : particleObjectVector.elements)
+	{
+		i.draw(deltaTime);
 	}
 }
 
@@ -275,4 +304,10 @@ void GameObjectPool::clearAll()
 	phisicalObjectVector.eraseVectors();
 
 	emptyObjectVector.eraseVectors();
+
+	for (auto &i : particleObjectVector.elements)
+	{
+		i.cleanup();
+	}
+	particleObjectVector.eraseVectors();
 }

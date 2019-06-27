@@ -41,6 +41,8 @@ void ShaderProgram::compileProgram()
 
 	glValidateProgram(id);
 
+
+
 }
 
 void ShaderProgram::bind()
@@ -70,7 +72,7 @@ int ShaderProgram::getUniformLocation(const char* name)
 
 		if (a == -1)
 		{
-			wlog("Uniform error: ", name);
+			elog("Uniform error: ", name);
 		}
 
 		//llog("Loaded Uniform: ", name);
@@ -84,15 +86,15 @@ int ShaderProgram::getUniformLocation(const char* name)
 
 }
 
-unsigned int ShaderProgram::getSoubRutineLocation(const char * name)
+unsigned int ShaderProgram::getSoubRutineLocation(const char * name, GLenum type)
 {
 	if (subRoutines.find(name) == subRoutines.end())
 	{
-		unsigned int a = glGetSubroutineIndex(id, GL_FRAGMENT_SHADER, name);
+		unsigned int a = glGetSubroutineIndex(id, type, name);
 
 		if (a == GL_INVALID_INDEX)
 		{
-			wlog("Uniform subroutine error: ", name);
+			llog("Uniform subroutine error: ", name);
 		}
 
 		subRoutines[name] = a;

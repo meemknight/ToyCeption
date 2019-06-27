@@ -142,10 +142,15 @@ int parseCommand(char *line, char *& endPos)
 																		return empty;
 																	}
 																	else
-																	{
-																		//not log here
-																		return none;
-																	}
+																		if (strcmp(line, "@particle") == 0)
+																		{
+																			return particle;
+																		}
+																		else
+																		{
+																			//not log here
+																			return none;
+																		}
 }
 
 std::vector<generalObjectData> loadMapData(const char *f)
@@ -278,6 +283,11 @@ std::vector<generalObjectData> loadMapData(const char *f)
 				break;
 			case empty:
 				object.type = empty;
+				break;
+			case particle:
+				object.type = particle;
+				object.name = parseName(current, p);
+				current = p;
 				break;
 			default:
 				nextLine = 1;

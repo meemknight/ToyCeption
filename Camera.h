@@ -24,11 +24,12 @@ public:
 	float cameraAngle = 0;
 	float topDownAngle = 0;
 
-public:
 	glm::vec2 oldMousePosition;
+
+public:
 	float rSpeed = 0.5f;
 	float mSpeed = 0.05f;
-	
+
 	bool flyCamera = 1;
 	bool firstPersonCamera = 0;
 
@@ -37,7 +38,7 @@ public:
 	///this function will get the right position taking into acount
 	///the type of the camera (first person or free camera)
 	glm::vec3 getCurrentViewingPosition();
-	
+
 	struct
 	{
 		float angle; ///angle of the view projecton in angles not radians
@@ -53,8 +54,8 @@ public:
 
 	glm::mat4 getObjectToWorld(); ///gets the object to world for the camera
 	glm::mat4 getProjectionViewMatrix(); /// gets the full view transform
+	glm::mat4 getProjectionMatrix();
 
-	
 
 	///uded for mouse moving
 	void mouseUpdate(const glm::vec2 &pos, sf::RenderWindow &window);
@@ -65,6 +66,4 @@ public:
 	void moveRight(float speed);
 	void moveFront(float speed);
 	void moveBack(float speed);
-
-
 };

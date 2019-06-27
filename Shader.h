@@ -7,22 +7,20 @@
 #include<GL/glew.h>
 #include <cstdio>
 #include <iostream>
-#include <map>
+#include <unordered_map>
 #include <cstring>
 #include "tools.h"
 
 class ShaderProgram;
 
 template <GLenum shaderType>
-class Shader
+struct Shader
 {
-public:
 	Shader() {};
 	Shader(const char* name)
 	{
 		compile(name);
 	}
-
 	//	static using shaderType = shaderType;
 
 	unsigned int id = 0;
@@ -36,9 +34,8 @@ public:
 
 		if (input == nullptr)
 		{
-			MessageBox(0, "Error openning shader", name, MB_ICONERROR);
 			elog("couldn't open the shader file:", name);
-			std::terminate();
+
 		}
 
 		fseek(input, 0, SEEK_END);
@@ -74,8 +71,6 @@ public:
 
 	}
 
-
-
 	friend ShaderProgram;
 };
 
@@ -86,7 +81,7 @@ struct cmp_str //for compairing the strings literals
 {
 	bool operator()(const char *a, const char *b)const
 	{
-		return std::strcmp(a, b) < 0;
+		return !std::strcmp(a, b);
 	}
 };
 
@@ -94,8 +89,8 @@ struct cmp_str //for compairing the strings literals
 class ShaderProgram
 {
 	void compileProgram();
-	std::map<const char*, int, cmp_str> locations;
-	std::map<const char*, unsigned int, cmp_str> subRoutines;
+	std::unordered_map<const char*, int> locations;
+	std::unordered_map<const char*, unsigned int> subRoutines;
 public:
 
 	ShaderProgram();
@@ -110,7 +105,7 @@ public:
 
 	int getUniformLocation(const char* name);
 
-	unsigned int getSoubRutineLocation(const char* name);
+	unsigned int getSoubRutineLocation(const char* name, GLenum type = GL_FRAGMENT_SHADER);
 
 	void uniform(const char* name, float a);
 	void uniform(const char* name, float a, float b, float c);
