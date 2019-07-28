@@ -96,7 +96,7 @@ void initializeMenu(sf::RenderWindow *window)
 {
 	font.loadFromFile("ui//Blobtastics.ttf");
 
-	loadTexture(backgroundT, "ui//background.png");
+	loadTexture(backgroundT, "ui//background2.png");
 	loadTexture(bigTextHolderT, "ui//bigTextHolder.png");
 	loadTexture(mediumTextHolderT, "ui//mediumTextHolder.png");
 	loadTexture(bigBrickT, "ui//bigbrick.png");
@@ -189,8 +189,7 @@ void initializeMenu(sf::RenderWindow *window)
 	playMenu->appendElement(new ma::TextButton(&smallTextHolderT, font, new ma::Function(LoadLevel{ 2 }), "2", 74));
 	playMenu->appendElement(new ma::TextButton(&smallTextHolderT, font, new ma::Function(LoadLevel{ 3 }), "3", 74));
 
-
-	mainHolder.appendElement(new ma::TextButton(&bigTextHolderT, font, nullptr, "ToyCeption", 50));
+	mainHolder.appendElement(new ma::TextButton(&bigTextHolderT, font, nullptr, "ToyCeption", 50, sf::Color::White));
 	auto playButton = new ma::TextButton(&bigBrickT, font, playMenu, "Play", 50);
 	auto settingsButton = new ma::TextButton(&bigBrickT, font, settings, "Settings", 50);
 	auto infoButton = new ma::TextButton(&bigBrickT, font, howToPlay, "Info", 50);
