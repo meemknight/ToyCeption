@@ -49,5 +49,7 @@
 @simple "objects/exit.obj" @position 1.5, 22.2, -12.5 @scale 0.5 @id 420 @unique 
 @simple "objects/sphere.obj" @position 59.5, 8.2, 23.5 @scale 0.5 @id 421 @unique 
 @empty @position 40, 3, -40 @id 422 /this is the player position 
-@particle "particles/fireFlake.part" @position 60, 0, 45 
-@particle "particles/fireFlake.part" @position 60, 0, 50 
+@particle "particles/fireFlake1.part" @position 60, 0, 35 
+@particle "particles/fireFlake2.part" @position 60, -1, 45 
+@particle "particles/fireFlake1.part" @position 50, 0, 35 
+@particle "particles/fireFlake2.part" @position 55, -1, 30 

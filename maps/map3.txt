@@ -6,4 +6,4 @@
 @light @position 0, 30, 0 @diffuse 0.2, 0.4, 0.4 @specular 0.7, 1.2, 1.2 @ambience 0.1, 0.2, 0.22 @strength 0.05 
 @phisical "objects/bloc.obj" @position 3.5, 38,  -3  @mass 10
 @phisical "objects/bloc.obj" @position 9.5, 37, -9 @mass 10 
-@phisical "objects/bigWood.obj" @position 15, 32, 9 @rotation 0, 0, 0 @mass 12 @collision ""
+@phisical "objects/bigWood.obj" @position 15, 32, 9 @rotation 0, 0, 0 @mass 12 @collision "" 

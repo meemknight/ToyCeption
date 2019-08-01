@@ -41,7 +41,7 @@
 extern "C"
 {
 	//Enable dedicated graphics
-	//__declspec(dllexport) DWORD NvOptimusEnablement = true;
+	__declspec(dllexport) DWORD NvOptimusEnablement = true;
 	//__declspec(dllexport) DWORD AmdPowerXpressRequestHighPerformance = true;
 }
 
@@ -691,7 +691,7 @@ int MAIN
 					pos = gameObjectPool.gameObjectVector.getPositionById(420);
 					if (pos != -1)
 					{
-						gameObjectPool.gameObjectVector.elements[pos].setMaterial(Material::whitePlastic());
+						gameObjectPool.gameObjectVector.elements[pos].setMaterial(Material::turquoise());
 						exitPosition = gameObjectPool.gameObjectVector.elements[pos].getInstance(0).getPosition();
 						pickupped = false;
 					}
